@@ -1,0 +1,15 @@
+---
+description: TODO LIST V1 — Clean Architecture + MVVM; ler skill antes de editar código.
+alwaysApply: true
+---
+
+# TODO LIST V1
+
+Leia `.cursor/skills/tarefas-academicas/SKILL.md` antes de criar ou editar código.
+
+- Status: `pendente` | `concluida` | `arquivada`
+- 9 use cases em `application/usecases/` (inclui restaurar, alterar prazo, resumo, excluir)
+- MVVM: views → viewmodels → use cases
+- Persistência v1: localStorage, Expo Web
+- Testes: domain + use cases (`npm test`)
+- UI nova em `src/presentation/`
