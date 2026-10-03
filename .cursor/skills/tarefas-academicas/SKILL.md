@@ -12,9 +12,9 @@ description: >-
 
 App **React Native / Expo**, navegação **Expo Router**, persistência **localStorage**, execução **V1 = Web**.
 
-**Clean Architecture** + **MVVM**: View → ViewModel → Use Case → Repository (port) → DataSource.
+**Clean Architecture** + **MVVM**: View → ViewModel → Use Case → Repository (port) → *RepositoryImpl → *LocalDataSource → `StorageDataSource`.
 
-Não implemente AsyncStorage, API ou mobile nativo sem o usuário pedir a próxima versão.
+Persistência nativa: `@react-native-async-storage/async-storage` via `AsyncStorageDataSource`. Não implemente API ou backend sem pedido explícito.
 
 ## Escopo V1
 

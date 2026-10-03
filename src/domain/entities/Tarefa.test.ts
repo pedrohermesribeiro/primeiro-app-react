@@ -1,5 +1,6 @@
 import {
   aplicarPrazoEntrada,
+  criarTarefaId,
   podeAlterarPrazo,
   podeArquivar,
   podeConcluir,
@@ -17,6 +18,12 @@ const base: Tarefa = {
 };
 
 describe('regras de Tarefa V1', () => {
+  it('criarTarefaId gera uuid v4', () => {
+    expect(criarTarefaId()).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
+  });
+
   it('pendente pode concluir, arquivar e excluir', () => {
     expect(podeConcluir(base)).toBe(true);
     expect(podeArquivar(base)).toBe(true);

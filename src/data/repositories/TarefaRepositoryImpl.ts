@@ -23,11 +23,11 @@ export class TarefaRepositoryImpl implements TarefaRepository {
     } else {
       tarefas.push(tarefa);
     }
-    this.dataSource.setAll(tarefas);
+    await this.dataSource.setAll(tarefas);
   }
 
   async excluir(id: string): Promise<void> {
     const tarefas = await this.listar();
-    this.dataSource.setAll(tarefas.filter((t) => t.id !== id));
+    await this.dataSource.setAll(tarefas.filter((t) => t.id !== id));
   }
 }

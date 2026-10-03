@@ -1,3 +1,5 @@
+import { createDefaultStorage } from '@/data/datasources/createDefaultStorage';
+import type { StorageDataSource } from '@/data/datasources/StorageDataSource';
 import type { StatusTarefa, Tarefa } from '@/domain/entities/Tarefa';
 
 const CHAVE = 'gta:tarefas';
@@ -12,15 +14,6 @@ type TarefaLegada = {
   descricao?: string;
   tipo?: string;
 };
-
-function assertLocalStorage(): Storage {
-  if (typeof localStorage === 'undefined') {
-    throw new Error(
-      'Persistência v1 requer Expo Web (localStorage). Use npm run web ou migre para AsyncStorage (v2).',
-    );
-  }
-  return localStorage;
-}
 
 function normalizarStatus(status?: string): StatusTarefa {
   if (status === 'concluida' || status === 'arquivada' || status === 'pendente') {
@@ -63,9 +56,10 @@ function precisaPersistirMigracao(bruto: TarefaLegada[], migradas: Tarefa[]): bo
 }
 
 export class TarefaLocalDataSource {
-  getAll(): Tarefa[] {
-    const storage = assertLocalStorage();
-    const bruto = storage.getItem(CHAVE);
+  constructor(private readonly storage: StorageDataSource = createDefaultStorage()) {}
+
+  async getAll(): Promise<Tarefa[]> {
+    const bruto = await this.storage.getItem(CHAVE);
     if (!bruto) {
       return [];
     }
@@ -73,13 +67,12 @@ export class TarefaLocalDataSource {
     const brutoParsed = JSON.parse(bruto) as TarefaLegada[];
     const migradas = brutoParsed.map(migrarTarefa);
     if (precisaPersistirMigracao(brutoParsed, migradas)) {
-      this.setAll(migradas);
+      await this.setAll(migradas);
     }
     return migradas;
   }
 
-  setAll(tarefas: Tarefa[]): void {
-    const storage = assertLocalStorage();
-    storage.setItem(CHAVE, JSON.stringify(tarefas));
+  async setAll(tarefas: Tarefa[]): Promise<void> {
+    await this.storage.setItem(CHAVE, JSON.stringify(tarefas));
   }
 }

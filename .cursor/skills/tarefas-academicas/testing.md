@@ -21,4 +21,6 @@ Comando: `npm test` (Jest + `jest-expo`).
 
 ## Fora do V1
 
-Testes de View, ViewModel, E2E, DataSource com localStorage real.
+Testes de View, ViewModel, E2E, DataSource com `localStorage` real.
+
+Quando testar a camada `data/`, preferir mock de `StorageDataSource` (Map in-memory) injetado em `TarefaLocalDataSource` / `CategoriaLocalDataSource` — sem browser.

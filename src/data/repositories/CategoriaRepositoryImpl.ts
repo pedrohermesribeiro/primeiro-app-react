@@ -9,15 +9,15 @@ export class CategoriaRepositoryImpl implements CategoriaRepository {
   ) {}
 
   async listar(): Promise<Categoria[]> {
-    let categorias = this.dataSource.getAll();
+    let categorias = await this.dataSource.getAll();
     if (categorias.length === 0) {
       categorias = [...CATEGORIAS_PADRAO];
-      this.dataSource.setAll(categorias);
+      await this.dataSource.setAll(categorias);
     }
     return categorias;
   }
 
   async substituirTodas(categorias: Categoria[]): Promise<void> {
-    this.dataSource.setAll(categorias);
+    await this.dataSource.setAll(categorias);
   }
 }

@@ -8,8 +8,20 @@ export type Tarefa = {
   prazo?: string;
 };
 
+function randomUuidV4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const random = Math.floor(Math.random() * 16);
+    const value = char === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
+}
+
 export function criarTarefaId(): string {
-  return crypto.randomUUID();
+  const webCrypto = globalThis.crypto;
+  if (webCrypto && typeof webCrypto.randomUUID === 'function') {
+    return webCrypto.randomUUID();
+  }
+  return randomUuidV4();
 }
 
 export function podeConcluir(tarefa: Tarefa): boolean {

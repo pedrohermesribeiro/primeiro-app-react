@@ -9,10 +9,25 @@
 | ViewModel | `presentation/viewmodels/` | Estado React; instancia Impl + use cases |
 | Application | `application/usecases/` | Orquestração |
 | Domain | `domain/` | Entidades, regras, ports |
-| Data | `data/` | localStorage via DataSource + *Impl |
+| Data | `data/` | `StorageDataSource` + entity datasources + *RepositoryImpl |
 
 ```text
-View → ViewModel → UseCase → TarefaRepository (port) → TarefaRepositoryImpl → localStorage
+View → ViewModel → UseCase → TarefaRepository (port) → TarefaRepositoryImpl
+  → TarefaLocalDataSource → StorageDataSource → LocalStorageDataSource (web) ou AsyncStorageDataSource (native)
+```
+
+```text
+src/data/
+  datasources/
+    StorageDataSource.ts          # porta KV (getItem / setItem / removeItem)
+    LocalStorageDataSource.ts     # web
+    AsyncStorageDataSource.ts     # iOS / Android
+    createDefaultStorage.*        # factory por plataforma (.web / .native)
+    TarefaLocalDataSource.ts      # chave gta:tarefas + migração JSON
+    CategoriaLocalDataSource.ts   # chave gta:categorias
+  repositories/
+    TarefaRepositoryImpl.ts
+    CategoriaRepositoryImpl.ts
 ```
 
 ## Rotas V1
@@ -39,4 +54,4 @@ Sync entre abas Home / Arquivadas / Resumo: `useFocusEffect` nas views + [`Taref
 
 ## v2+
 
-AsyncStorage, API, backend — não V1.
+- API, backend
