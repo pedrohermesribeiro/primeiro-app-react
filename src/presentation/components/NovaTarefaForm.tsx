@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { Categoria } from '@/domain/entities/Categoria';
+import { MAX_TITULO_TAREFA } from '@/domain/entities/Tarefa';
 import { useTheme } from '@/hooks/use-theme';
 
 import { CampoPrazo } from '@/presentation/components/CampoPrazo';
@@ -46,6 +47,7 @@ export function NovaTarefaForm({ categorias, onSubmit, erro }: Props) {
           value={titulo}
           onChangeText={setTitulo}
           placeholder="Título"
+          maxLength={MAX_TITULO_TAREFA}
           placeholderTextColor={theme.textSecondary}
           style={[styles.input, { color: theme.text, borderColor: theme.backgroundSelected }]}
         />

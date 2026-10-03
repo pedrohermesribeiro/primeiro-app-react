@@ -1,4 +1,10 @@
-import { criarTarefaId, type Tarefa } from '@/domain/entities/Tarefa';
+import {
+  criarTarefaId,
+  validarCategoriaId,
+  validarPrazoOpcional,
+  validarTituloTarefa,
+  type Tarefa,
+} from '@/domain/entities/Tarefa';
 import type { TarefaRepository } from '@/domain/repositories/TarefaRepository';
 
 export type CriarTarefaEntrada = {
@@ -11,23 +17,19 @@ export class CriarTarefa {
   constructor(private readonly repository: TarefaRepository) {}
 
   async executar(entrada: CriarTarefaEntrada): Promise<Tarefa> {
-    const titulo = entrada.titulo.trim();
-    if (!titulo) {
-      throw new Error('O título é obrigatório.');
-    }
-    if (!entrada.categoriaId.trim()) {
-      throw new Error('A categoria é obrigatória.');
-    }
+    const titulo = validarTituloTarefa(entrada.titulo);
+    const categoriaId = validarCategoriaId(entrada.categoriaId);
+    const prazo = validarPrazoOpcional(entrada.prazo);
 
     const tarefa: Tarefa = {
       id: criarTarefaId(),
       titulo,
-      categoriaId: entrada.categoriaId,
+      categoriaId,
       status: 'pendente',
     };
 
-    if (entrada.prazo?.trim()) {
-      tarefa.prazo = entrada.prazo.trim();
+    if (prazo) {
+      tarefa.prazo = prazo;
     }
 
     await this.repository.salvar(tarefa);

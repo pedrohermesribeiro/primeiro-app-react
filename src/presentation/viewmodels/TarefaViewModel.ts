@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AlterarPrazoTarefa } from '@/application/usecases/AlterarPrazoTarefa';
 import { ArquivarTarefa } from '@/application/usecases/ArquivarTarefa';
+import { EditarTarefa } from '@/application/usecases/EditarTarefa';
 import { ConcluirTarefa } from '@/application/usecases/ConcluirTarefa';
 import { CriarTarefa } from '@/application/usecases/CriarTarefa';
 import { ExcluirDefinitivamente } from '@/application/usecases/ExcluirDefinitivamente';
@@ -25,7 +25,7 @@ export function useTarefaViewModel() {
         concluir: new ConcluirTarefa(tarefaRepo),
         arquivar: new ArquivarTarefa(tarefaRepo),
         excluir: new ExcluirDefinitivamente(tarefaRepo),
-        alterarPrazo: new AlterarPrazoTarefa(tarefaRepo),
+        editar: new EditarTarefa(tarefaRepo),
       },
     };
   }, []);
@@ -132,17 +132,19 @@ export function useTarefaViewModel() {
     [useCases.excluir, sincronizarListas],
   );
 
-  const alterarPrazo = useCallback(
-    async (id: string, prazo: string) => {
+  const editar = useCallback(
+    async (id: string, titulo: string, prazo: string, categoriaId: string) => {
       setErro(null);
       try {
-        await useCases.alterarPrazo.executar({ id, prazo });
+        await useCases.editar.executar({ id, titulo, categoriaId, prazo });
         await sincronizarListas();
+        return true;
       } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao alterar prazo.');
+        setErro(e instanceof Error ? e.message : 'Erro ao editar tarefa.');
+        return false;
       }
     },
-    [useCases.alterarPrazo, sincronizarListas],
+    [useCases.editar, sincronizarListas],
   );
 
   const nomeCategoria = useCallback(
@@ -160,7 +162,7 @@ export function useTarefaViewModel() {
     concluir,
     arquivar,
     excluir,
-    alterarPrazo,
+    editar,
     nomeCategoria,
   };
 }

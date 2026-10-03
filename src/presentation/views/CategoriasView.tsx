@@ -11,7 +11,7 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import type { Categoria } from '@/domain/entities/Categoria';
+import { MAX_NOME_CATEGORIA, type Categoria } from '@/domain/entities/Categoria';
 import { useTheme } from '@/hooks/use-theme';
 import { useCategoriasViewModel } from '@/presentation/viewmodels/CategoriasViewModel';
 
@@ -60,6 +60,7 @@ export function CategoriasView() {
           value={nome}
           onChangeText={setNome}
           placeholder="Nome"
+          maxLength={MAX_NOME_CATEGORIA}
           editable={podeIncluir && !enviando}
           placeholderTextColor={theme.textSecondary}
           style={[styles.input, { color: theme.text, borderColor: theme.backgroundSelected }]}

@@ -48,6 +48,13 @@ Todos em `src/application/usecases/`, classe com `constructor(repository)` e `ex
 - **Entrada:** `{ id, prazo }`
 - **Saída:** `Tarefa` (mesmo status)
 - **Erros:** não encontrada; `podeAlterarPrazo` falso; prazo inválido
+- **Nota:** use case mantido; na **Home** o prazo é editado via `EditarTarefa` (modal)
+
+## EditarTarefa
+
+- **Entrada:** `{ id, titulo, categoriaId, prazo }` (`prazo` vazio remove)
+- **Saída:** `Tarefa` atualizada (status inalterado)
+- **Erros:** não encontrada; `podeEditarTarefa` falso; validações de título, categoria e prazo
 
 ## GerarResumo
 
@@ -65,7 +72,7 @@ Todos em `src/application/usecases/`, classe com `constructor(repository)` e `ex
 
 | ViewModel | Use cases |
 |-----------|-----------|
-| `TarefaViewModel` | criar, listar, concluir, arquivar, excluir, alterarPrazo + categorias |
+| `TarefaViewModel` | criar, listar, concluir, arquivar, excluir, editar + categorias |
 | `ResumoViewModel` | gerarResumo + categorias (nomes no card) |
 | `ArquivadasViewModel` | listarArquivadas, excluirDefinitivamente, restaurar |
 | `CategoriasViewModel` | incluirCategoria + listar categorias |

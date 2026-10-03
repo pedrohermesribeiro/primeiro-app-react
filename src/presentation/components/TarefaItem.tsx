@@ -4,9 +4,9 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import {
-  podeAlterarPrazo,
   podeArquivar,
   podeConcluir,
+  podeEditarTarefa,
   podeExcluir,
   podeRestaurar,
   type Tarefa,
@@ -19,7 +19,7 @@ type Props = {
   onArquivar?: (id: string) => void;
   onExcluir?: (id: string) => void;
   onRestaurar?: (id: string) => void;
-  onAlterarPrazo?: (id: string) => void;
+  onEditar?: (id: string) => void;
 };
 
 const rotuloStatus: Record<Tarefa['status'], string> = {
@@ -46,7 +46,7 @@ export function TarefaItem({
   onArquivar,
   onExcluir,
   onRestaurar,
-  onAlterarPrazo,
+  onEditar,
 }: Props) {
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
@@ -70,14 +70,14 @@ export function TarefaItem({
             <ThemedText type="smallBold">Concluir</ThemedText>
           </Pressable>
         )}
+        {onEditar && podeEditarTarefa(tarefa) && (
+          <Pressable onPress={() => onEditar(tarefa.id)} style={styles.button}>
+            <ThemedText type="smallBold">Editar</ThemedText>
+          </Pressable>
+        )}
         {onArquivar && podeArquivar(tarefa) && (
           <Pressable onPress={() => onArquivar(tarefa.id)} style={styles.button}>
             <ThemedText type="smallBold">Arquivar</ThemedText>
-          </Pressable>
-        )}
-        {onAlterarPrazo && podeAlterarPrazo(tarefa) && (
-          <Pressable onPress={() => onAlterarPrazo(tarefa.id)} style={styles.button}>
-            <ThemedText type="smallBold">Alterar prazo</ThemedText>
           </Pressable>
         )}
         {onRestaurar && podeRestaurar(tarefa) && (
@@ -116,11 +116,14 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.three,
+    alignItems: 'center',
+    width: '100%',
     marginTop: Spacing.one,
   },
   button: {
+    flex: 1,
+    alignItems: 'center',
     paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.one,
   },
 });

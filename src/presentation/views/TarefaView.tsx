@@ -14,7 +14,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import type { Tarefa } from '@/domain/entities/Tarefa';
 
-import { ModalEditarPrazo } from '@/presentation/components/ModalEditarPrazo';
+import { ModalEditarTarefa } from '@/presentation/components/ModalEditarTarefa';
 import { NovaTarefaForm } from '@/presentation/components/NovaTarefaForm';
 import { TarefaItem } from '@/presentation/components/TarefaItem';
 import { confirmarExclusaoTarefa } from '@/presentation/utils/confirmarExclusaoTarefa';
@@ -31,15 +31,15 @@ export function TarefaView() {
     concluir,
     arquivar,
     excluir,
-    alterarPrazo,
+    editar,
     carregar,
     nomeCategoria,
   } = useTarefaViewModel();
-  const [alterarPrazoId, setAlterarPrazoId] = useState<string | null>(null);
+  const [editarId, setEditarId] = useState<string | null>(null);
 
-  const tarefaAlterarPrazo = useMemo(
-    () => tarefas.find((t) => t.id === alterarPrazoId) ?? null,
-    [alterarPrazoId, tarefas],
+  const tarefaEditar = useMemo(
+    () => tarefas.find((t) => t.id === editarId) ?? null,
+    [editarId, tarefas],
   );
 
   useFocusEffect(
@@ -77,30 +77,40 @@ export function TarefaView() {
         tarefa={item}
         categoriaNome={nomeCategoria(item.categoriaId)}
         onConcluir={(id) => void concluir(id)}
+        onEditar={setEditarId}
         onArquivar={(id) => void arquivar(id)}
         onExcluir={handleExcluir}
-        onAlterarPrazo={setAlterarPrazoId}
       />
     ),
     [arquivar, concluir, handleExcluir, nomeCategoria],
   );
 
-  const handleConfirmarPrazo = useCallback(
-    (prazo: string) => {
-      if (!alterarPrazoId) {
+  const handleConfirmarEditar = useCallback(
+    async (titulo: string, prazo: string, categoriaId: string) => {
+      if (!editarId) {
         return;
       }
-      const id = alterarPrazoId;
-      setAlterarPrazoId(null);
-      void alterarPrazo(id, prazo);
+      const id = editarId;
+      const ok = await editar(id, titulo, prazo, categoriaId);
+      if (ok) {
+        setEditarId(null);
+      }
     },
-    [alterarPrazo, alterarPrazoId],
+    [editar, editarId],
   );
+
+  const handleFecharEditar = useCallback(() => {
+    setEditarId(null);
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.topSection, { paddingTop, paddingHorizontal }]}>
-        <NovaTarefaForm categorias={categorias} onSubmit={handleSubmit} erro={erro} />
+        <NovaTarefaForm
+          categorias={categorias}
+          onSubmit={handleSubmit}
+          erro={editarId ? null : erro}
+        />
       </View>
 
       <View style={styles.listArea}>
@@ -125,13 +135,15 @@ export function TarefaView() {
           />
         )}
       </View>
-      <ModalEditarPrazo
-        visible={alterarPrazoId !== null}
-        tituloTarefa={tarefaAlterarPrazo?.titulo ?? ''}
-        prazoInicial={tarefaAlterarPrazo?.prazo ?? ''}
-        rotuloConfirmar="Salvar"
-        onCancel={() => setAlterarPrazoId(null)}
-        onConfirm={handleConfirmarPrazo}
+      <ModalEditarTarefa
+        visible={editarId !== null}
+        categorias={categorias}
+        tituloInicial={tarefaEditar?.titulo ?? ''}
+        categoriaIdInicial={tarefaEditar?.categoriaId ?? 'estudos'}
+        prazoInicial={tarefaEditar?.prazo ?? ''}
+        erro={editarId !== null ? erro : null}
+        onCancel={handleFecharEditar}
+        onConfirm={(titulo, prazo, categoriaId) => void handleConfirmarEditar(titulo, prazo, categoriaId)}
       />
     </ThemedView>
   );

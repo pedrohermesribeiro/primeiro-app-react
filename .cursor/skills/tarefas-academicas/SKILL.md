@@ -2,8 +2,8 @@
 name: tarefas-academicas
 description: >-
   TODO LIST V1 (Expo Web): Clean Architecture + MVVM, Tarefa, Categoria (até 12),
-  dez casos de uso (criar, listar, concluir, arquivar, excluir, listar arquivadas,
-  restaurar, alterar prazo, gerar resumo, incluir categoria), localStorage, testes Jest
+  onze casos de uso (criar, listar, concluir, arquivar, excluir, listar arquivadas,
+  restaurar, alterar prazo, editar, gerar resumo, incluir categoria), localStorage, testes Jest
   em domain e use cases. Use ao editar este app,
   entidades, repositórios, ViewModels, rotas Expo Router ou pastas em src/.
 ---
@@ -23,7 +23,7 @@ Persistência nativa: `@react-native-async-storage/async-storage` via `AsyncStor
 | Entidade principal | `Tarefa` (+ `Categoria` seed) |
 | Categorias | 6 seed + incluir até **12** (`IncluirCategoria`) |
 | Ciclo de vida | `pendente` → `concluida` → `arquivada` |
-| Use cases | 10 arquivos em `application/usecases/` (ver [usecases.md](usecases.md)) |
+| Use cases | 11 arquivos em `application/usecases/` (ver [usecases.md](usecases.md)) |
 | Testes | Domain + Use Cases ([testing.md](testing.md)) |
 
 ## Árvore
@@ -61,8 +61,9 @@ viewmodels → data (composition root: Impl + use cases)
 6. `ListarTarefasArquivadas.ts`
 7. `RestaurarTarefa.ts`
 8. `AlterarPrazoTarefa.ts`
-9. `GerarResumo.ts`
-10. `IncluirCategoria.ts`
+9. `EditarTarefa.ts`
+10. `GerarResumo.ts`
+11. `IncluirCategoria.ts`
 
 ## Novo use case
 
@@ -78,6 +79,6 @@ viewmodels → data (composition root: Impl + use cases)
 
 - [domain.md](domain.md) — linguagem ubíqua
 - [architecture.md](architecture.md) — camadas, rotas, localStorage
-- [usecases.md](usecases.md) — contratos dos 10 use cases
+- [usecases.md](usecases.md) — contratos dos 11 use cases
 - [testing.md](testing.md) — Jest domain/application
 - [examples.md](examples.md) — esqueletos

@@ -1,7 +1,11 @@
 import {
   aplicarPrazoEntrada,
   criarTarefaId,
+  MAX_TITULO_TAREFA,
   podeAlterarPrazo,
+  validarPrazoIso,
+  validarPrazoOpcional,
+  validarTituloTarefa,
   podeArquivar,
   podeConcluir,
   podeExcluir,
@@ -22,6 +26,20 @@ describe('regras de Tarefa V1', () => {
     expect(criarTarefaId()).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
+  });
+
+  it('validarTituloTarefa rejeita vazio, longo e normaliza controle', () => {
+    expect(validarTituloTarefa('  Estudar  ')).toBe('Estudar');
+    expect(validarTituloTarefa('a\u0001b')).toBe('ab');
+    expect(() => validarTituloTarefa('   ')).toThrow('obrigatório');
+    expect(() => validarTituloTarefa('x'.repeat(MAX_TITULO_TAREFA + 1))).toThrow('60');
+  });
+
+  it('validarPrazoOpcional e validarPrazoIso', () => {
+    expect(validarPrazoOpcional('')).toBeUndefined();
+    expect(validarPrazoOpcional('  2026-03-01  ')).toBe('2026-03-01');
+    expect(() => validarPrazoIso('2026-02-30')).toThrow('inexistente');
+    expect(() => validarPrazoIso('03/01/2026')).toThrow('AAAA-MM-DD');
   });
 
   it('pendente pode concluir, arquivar e excluir', () => {

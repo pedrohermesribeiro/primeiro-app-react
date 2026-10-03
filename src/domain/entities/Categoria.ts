@@ -1,3 +1,5 @@
+import { normalizarTextoEntrada } from '@/domain/validacao/textoEntrada';
+
 export type Categoria = {
   id: string;
   nome: string;
@@ -40,13 +42,15 @@ export function criarCategoriaId(nome: string, idsExistentes: Set<string>): stri
   return `${base}-${suffix}`;
 }
 
+export const MAX_NOME_CATEGORIA = 40;
+
 export function validarNomeCategoria(nome: string): string {
-  const trimmed = nome.trim();
-  if (!trimmed) {
+  const normalizado = normalizarTextoEntrada(nome);
+  if (!normalizado) {
     throw new Error('O nome da categoria é obrigatório.');
   }
-  if (trimmed.length > 40) {
-    throw new Error('O nome da categoria deve ter no máximo 40 caracteres.');
+  if (normalizado.length > MAX_NOME_CATEGORIA) {
+    throw new Error(`O nome da categoria deve ter no máximo ${MAX_NOME_CATEGORIA} caracteres.`);
   }
-  return trimmed;
+  return normalizado;
 }
