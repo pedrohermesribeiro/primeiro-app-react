@@ -13,6 +13,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { MAX_NOME_CATEGORIA, type Categoria } from '@/domain/entities/Categoria';
 import { useTheme } from '@/hooks/use-theme';
+import { confirmarExclusaoCategoria } from '@/presentation/utils/confirmarExclusaoCategoria';
 import { useCategoriasViewModel } from '@/presentation/viewmodels/CategoriasViewModel';
 
 export function CategoriasView() {
@@ -23,8 +24,11 @@ export function CategoriasView() {
     erro,
     enviando,
     podeIncluir,
+    podeExcluir,
     maxCategorias,
+    minCategorias,
     incluir,
+    excluir,
   } = useCategoriasViewModel();
   const [nome, setNome] = useState('');
 
@@ -51,8 +55,13 @@ export function CategoriasView() {
   return (
     <View style={styles.screen}>
       <ThemedText type="small" themeColor="textSecondary" style={styles.contador}>
-        {categorias.length} de {maxCategorias} categorias
+        {categorias.length} de {maxCategorias} categorias · mínimo {minCategorias}
       </ThemedText>
+      {!podeExcluir ? (
+        <ThemedText type="small" themeColor="textSecondary" style={styles.avisoMinimo}>
+          Mínimo de {minCategorias} categorias — não é possível excluir mais.
+        </ThemedText>
+      ) : null}
 
       <ThemedView type="backgroundElement" style={styles.form}>
         <ThemedText type="smallBold">Nova categoria</ThemedText>
@@ -91,7 +100,19 @@ export function CategoriasView() {
         contentContainerStyle={styles.listContent}
         renderItem={({ item }: { item: Categoria }) => (
           <ThemedView type="backgroundElement" style={styles.listItem}>
-            <ThemedText>{item.nome}</ThemedText>
+            <ThemedText style={styles.listItemNome}>{item.nome}</ThemedText>
+            <Pressable
+              onPress={() =>
+                confirmarExclusaoCategoria(item.nome, () => {
+                  void excluir(item.id);
+                })
+              }
+              disabled={!podeExcluir || enviando}
+              style={[styles.excluirButton, (!podeExcluir || enviando) && styles.buttonDisabled]}>
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                Excluir
+              </ThemedText>
+            </Pressable>
           </ThemedView>
         )}
       />
@@ -115,6 +136,9 @@ const styles = StyleSheet.create({
   },
   contador: {
     textAlign: 'right',
+  },
+  avisoMinimo: {
+    textAlign: 'center',
   },
   form: {
     padding: Spacing.three,
@@ -146,7 +170,18 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.four,
   },
   listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
     padding: Spacing.three,
     borderRadius: Spacing.two,
+  },
+  listItemNome: {
+    flex: 1,
+  },
+  excluirButton: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
   },
 });

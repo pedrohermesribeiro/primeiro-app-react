@@ -5,15 +5,21 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { Categoria } from '@/domain/entities/Categoria';
-import { MAX_TITULO_TAREFA } from '@/domain/entities/Tarefa';
+import { MAX_TITULO_TAREFA, PRIORIDADE_PADRAO, type PrioridadeTarefa } from '@/domain/entities/Tarefa';
 import { useTheme } from '@/hooks/use-theme';
 
 import { CampoPrazo } from '@/presentation/components/CampoPrazo';
 import { SeletorCategoria } from '@/presentation/components/SeletorCategoria';
+import { SeletorPrioridade } from '@/presentation/components/SeletorPrioridade';
 
 type Props = {
   categorias: Categoria[];
-  onSubmit: (titulo: string, prazo: string, categoriaId: string) => Promise<void>;
+  onSubmit: (
+    titulo: string,
+    prazo: string,
+    categoriaId: string,
+    prioridade: PrioridadeTarefa,
+  ) => Promise<void>;
   erro?: string | null;
 };
 
@@ -22,18 +28,20 @@ export function NovaTarefaForm({ categorias, onSubmit, erro }: Props) {
   const [titulo, setTitulo] = useState('');
   const [prazo, setPrazo] = useState('');
   const [categoriaId, setCategoriaId] = useState(categorias[0]?.id ?? 'estudos');
+  const [prioridade, setPrioridade] = useState<PrioridadeTarefa>(PRIORIDADE_PADRAO);
   const [enviando, setEnviando] = useState(false);
 
   const handleCriar = useCallback(async () => {
     setEnviando(true);
     try {
-      await onSubmit(titulo, prazo, categoriaId);
+      await onSubmit(titulo, prazo, categoriaId, prioridade);
       setTitulo('');
       setPrazo('');
+      setPrioridade(PRIORIDADE_PADRAO);
     } finally {
       setEnviando(false);
     }
-  }, [categoriaId, onSubmit, prazo, titulo]);
+  }, [categoriaId, onSubmit, prazo, prioridade, titulo]);
 
   return (
     <>
@@ -56,6 +64,7 @@ export function NovaTarefaForm({ categorias, onSubmit, erro }: Props) {
           selecionadaId={categoriaId}
           onSelecionar={setCategoriaId}
         />
+        <SeletorPrioridade selecionada={prioridade} onSelecionar={setPrioridade} />
         <CampoPrazo value={prazo} onChange={setPrazo} />
         <Pressable
           onPress={() => void handleCriar()}

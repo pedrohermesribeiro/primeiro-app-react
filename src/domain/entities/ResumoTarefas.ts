@@ -4,6 +4,11 @@ export type ResumoTarefas = {
   totalAtivas: number;
   totalArquivadas: number;
   porCategoria: Record<string, number>;
+  porPrioridade: {
+    baixa: number;
+    media: number;
+    alta: number;
+  };
   porStatus: {
     pendente: number;
     concluida: number;
@@ -13,12 +18,14 @@ export type ResumoTarefas = {
 
 export function calcularResumoTarefas(tarefas: Tarefa[]): ResumoTarefas {
   const porCategoria: Record<string, number> = {};
+  const porPrioridade = { baixa: 0, media: 0, alta: 0 };
   const porStatus = { pendente: 0, concluida: 0, arquivada: 0 };
 
   for (const tarefa of tarefas) {
     porStatus[tarefa.status] += 1;
     if (tarefa.status !== 'arquivada') {
       porCategoria[tarefa.categoriaId] = (porCategoria[tarefa.categoriaId] ?? 0) + 1;
+      porPrioridade[tarefa.prioridade] += 1;
     }
   }
 
@@ -26,6 +33,7 @@ export function calcularResumoTarefas(tarefas: Tarefa[]): ResumoTarefas {
     totalAtivas: porStatus.pendente + porStatus.concluida,
     totalArquivadas: porStatus.arquivada,
     porCategoria,
+    porPrioridade,
     porStatus,
   };
 }

@@ -9,6 +9,7 @@ describe('RestaurarTarefa', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'arquivada',
+      prioridade: 'media',
       prazo: '2026-01-01',
     };
     let salva: Tarefa | null = null;
@@ -18,6 +19,7 @@ describe('RestaurarTarefa', () => {
       salvar: async (t) => {
         salva = t;
       },
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 
@@ -29,6 +31,7 @@ describe('RestaurarTarefa', () => {
     expect(result.status).toBe('pendente');
     expect(result.prazo).toBe('2026-12-31');
     expect(salva?.status).toBe('pendente');
+    expect(salva?.prioridade).toBe('media');
   });
 
   it('rejeita tarefa pendente', async () => {
@@ -37,11 +40,13 @@ describe('RestaurarTarefa', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'pendente',
+      prioridade: 'baixa',
     };
     const repo: TarefaRepository = {
       listar: async () => [tarefa],
       buscarPorId: async () => tarefa,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 

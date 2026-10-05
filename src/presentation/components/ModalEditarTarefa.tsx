@@ -5,21 +5,28 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import type { Categoria } from '@/domain/entities/Categoria';
-import { MAX_TITULO_TAREFA } from '@/domain/entities/Tarefa';
+import { MAX_TITULO_TAREFA, type PrioridadeTarefa } from '@/domain/entities/Tarefa';
 import { useTheme } from '@/hooks/use-theme';
 
 import { CampoPrazo } from '@/presentation/components/CampoPrazo';
 import { SeletorCategoria } from '@/presentation/components/SeletorCategoria';
+import { SeletorPrioridade } from '@/presentation/components/SeletorPrioridade';
 
 type Props = {
   visible: boolean;
   categorias: Categoria[];
   tituloInicial: string;
   categoriaIdInicial: string;
+  prioridadeInicial: PrioridadeTarefa;
   prazoInicial: string;
   erro?: string | null;
   onCancel: () => void;
-  onConfirm: (titulo: string, prazo: string, categoriaId: string) => void;
+  onConfirm: (
+    titulo: string,
+    prazo: string,
+    categoriaId: string,
+    prioridade: PrioridadeTarefa,
+  ) => void;
 };
 
 export function ModalEditarTarefa({
@@ -27,6 +34,7 @@ export function ModalEditarTarefa({
   categorias,
   tituloInicial,
   categoriaIdInicial,
+  prioridadeInicial,
   prazoInicial,
   erro,
   onCancel,
@@ -36,14 +44,16 @@ export function ModalEditarTarefa({
   const [titulo, setTitulo] = useState(tituloInicial);
   const [categoriaId, setCategoriaId] = useState(categoriaIdInicial);
   const [prazo, setPrazo] = useState(prazoInicial);
+  const [prioridade, setPrioridade] = useState<PrioridadeTarefa>(prioridadeInicial);
 
   useEffect(() => {
     if (visible) {
       setTitulo(tituloInicial);
       setCategoriaId(categoriaIdInicial);
       setPrazo(prazoInicial);
+      setPrioridade(prioridadeInicial);
     }
-  }, [visible, tituloInicial, categoriaIdInicial, prazoInicial]);
+  }, [visible, tituloInicial, categoriaIdInicial, prazoInicial, prioridadeInicial]);
 
   const categoriaValida =
     categorias.some((c) => c.id === categoriaId) || categorias.length === 0;
@@ -68,6 +78,7 @@ export function ModalEditarTarefa({
             selecionadaId={categoriaValida ? categoriaId : (categorias[0]?.id ?? categoriaId)}
             onSelecionar={setCategoriaId}
           />
+          <SeletorPrioridade selecionada={prioridade} onSelecionar={setPrioridade} />
           <CampoPrazo value={prazo} onChange={setPrazo} />
           {erro ? (
             <ThemedText type="small" style={styles.erro}>
@@ -86,6 +97,7 @@ export function ModalEditarTarefa({
                   titulo,
                   prazo,
                   categoriaValida ? categoriaId : (categorias[0]?.id ?? categoriaId),
+                  prioridade,
                 )
               }
               disabled={!titulo.trim() || categorias.length === 0}

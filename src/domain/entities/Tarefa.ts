@@ -2,6 +2,12 @@ import { normalizarTextoEntrada } from '@/domain/validacao/textoEntrada';
 
 export type StatusTarefa = 'pendente' | 'concluida' | 'arquivada';
 
+export type PrioridadeTarefa = 'baixa' | 'media' | 'alta';
+
+export const PRIORIDADE_PADRAO: PrioridadeTarefa = 'baixa';
+
+export const PRIORIDADES_TAREFA: PrioridadeTarefa[] = ['baixa', 'media', 'alta'];
+
 export const MAX_TITULO_TAREFA = 60;
 
 export type Tarefa = {
@@ -9,8 +15,33 @@ export type Tarefa = {
   titulo: string;
   categoriaId: string;
   status: StatusTarefa;
+  prioridade: PrioridadeTarefa;
   prazo?: string;
 };
+
+export function normalizarPrioridade(valor?: string): PrioridadeTarefa {
+  if (valor === 'baixa' || valor === 'media' || valor === 'alta') {
+    return valor;
+  }
+  return PRIORIDADE_PADRAO;
+}
+
+export function validarPrioridade(valor: string): PrioridadeTarefa {
+  const normalizado = valor.trim().toLowerCase();
+  if (normalizado === 'baixa' || normalizado === 'media' || normalizado === 'alta') {
+    return normalizado;
+  }
+  throw new Error('Prioridade inválida.');
+}
+
+export function rotuloPrioridade(prioridade: PrioridadeTarefa): string {
+  const rotulos: Record<PrioridadeTarefa, string> = {
+    baixa: 'Baixa',
+    media: 'Média',
+    alta: 'Alta',
+  };
+  return rotulos[prioridade];
+}
 
 function randomUuidV4(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {

@@ -22,9 +22,23 @@ export const Colors = {
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
   },
+  grafiteClaro: {
+    text: '#18181B',
+    background: '#F4F4F5',
+    backgroundElement: '#E4E4E7',
+    backgroundSelected: '#D4D4D8',
+    textSecondary: '#52525B',
+  },
+  grafiteEscuro: {
+    text: '#FAFAFA',
+    background: '#18181B',
+    backgroundElement: '#27272A',
+    backgroundSelected: '#3F3F46',
+    textSecondary: '#A1A1AA',
+  },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type ThemeColor = keyof typeof Colors.light;
 
 export const Fonts = Platform.select({
   ios: {

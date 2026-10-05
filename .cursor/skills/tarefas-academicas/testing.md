@@ -11,13 +11,15 @@ Comando: `npm test` (Jest + `jest-expo`).
 
 ## Domain
 
-- `podeArquivar`, `podeConcluir`, `podeExcluirDefinitivamente`
-- `calcularResumoTarefas` (totais e por categoria/status)
+- `Tarefa`, `Categoria`, `FiltrosTarefa` (`aplicarFiltrosTarefas`, `filtrosDiferentesDoPadrao`)
+- `ResumoTarefas` / `calcularResumoTarefas`
+- `PreferenciaTema` / `resolverPaleta`
+- `DadosExportacao` (texto + HTML, filtro de ativas)
 
 ## Application
 
 - Mock de `TarefaRepository` (objeto com jest.fn)
-- Ex.: `ConcluirTarefa` só aceita `pendente`; `ExcluirDefinitivamente` só `arquivada`
+- Ex.: `ConcluirTarefa` só aceita `pendente`; `ListarTarefasFiltradas`, `ExcluirCategoria`, `ExportarDados`
 
 ## Fora do V1
 

@@ -5,6 +5,8 @@ import {
   podeAlterarPrazo,
   validarPrazoIso,
   validarPrazoOpcional,
+  normalizarPrioridade,
+  validarPrioridade,
   validarTituloTarefa,
   podeArquivar,
   podeConcluir,
@@ -19,6 +21,7 @@ const base: Tarefa = {
   titulo: 'Teste',
   categoriaId: 'estudos',
   status: 'pendente',
+  prioridade: 'baixa',
 };
 
 describe('regras de Tarefa V1', () => {
@@ -33,6 +36,13 @@ describe('regras de Tarefa V1', () => {
     expect(validarTituloTarefa('a\u0001b')).toBe('ab');
     expect(() => validarTituloTarefa('   ')).toThrow('obrigatório');
     expect(() => validarTituloTarefa('x'.repeat(MAX_TITULO_TAREFA + 1))).toThrow('60');
+  });
+
+  it('validarPrioridade e normalizarPrioridade', () => {
+    expect(validarPrioridade('  ALTA  ')).toBe('alta');
+    expect(normalizarPrioridade(undefined)).toBe('baixa');
+    expect(normalizarPrioridade('urgente')).toBe('baixa');
+    expect(() => validarPrioridade('urgente')).toThrow('inválida');
   });
 
   it('validarPrazoOpcional e validarPrazoIso', () => {

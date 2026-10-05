@@ -9,6 +9,7 @@ describe('EditarTarefa', () => {
       titulo: 'Antiga',
       categoriaId: 'outros',
       status: 'pendente',
+      prioridade: 'baixa',
     };
     let salva: Tarefa | null = null;
     const repo: TarefaRepository = {
@@ -17,6 +18,7 @@ describe('EditarTarefa', () => {
       salvar: async (t) => {
         salva = t;
       },
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 
@@ -25,11 +27,13 @@ describe('EditarTarefa', () => {
       titulo: '  Nova  ',
       categoriaId: 'estudos',
       prazo: '2026-06-15',
+      prioridade: 'alta',
     });
 
     expect(result.titulo).toBe('Nova');
     expect(result.categoriaId).toBe('estudos');
     expect(result.prazo).toBe('2026-06-15');
+    expect(result.prioridade).toBe('alta');
     expect(salva?.titulo).toBe('Nova');
   });
 
@@ -39,11 +43,13 @@ describe('EditarTarefa', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'arquivada',
+      prioridade: 'baixa',
     };
     const repo: TarefaRepository = {
       listar: async () => [tarefa],
       buscarPorId: async () => tarefa,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 
@@ -53,6 +59,7 @@ describe('EditarTarefa', () => {
         titulo: 'X',
         categoriaId: 'outros',
         prazo: '',
+        prioridade: 'baixa',
       }),
     ).rejects.toThrow('ativas');
   });

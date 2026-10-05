@@ -8,39 +8,62 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-
-type MenuItem = {
-  id: string;
-  label: string;
-  onPress: () => void;
-};
+import { APP_MENU_ITEMS, type AppMenuItemId } from '@/presentation/constants/appMenuItems';
+import { useExportarDados } from '@/presentation/hooks/useExportarDados';
 
 export function AppMenuHeader() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { exportarPara, exportando } = useExportarDados();
   const [open, setOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
-  const items: MenuItem[] = useMemo(
-    () => [
-      {
-        id: 'categorias',
-        label: 'Categorias',
-        onPress: () => {
-          setOpen(false);
-          router.push('/categorias');
-        },
-      },
-    ],
-    [router],
+  const close = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const handleItemPress = useCallback(
+    (id: AppMenuItemId) => {
+      close();
+      if (id === 'filtros') {
+        router.push('/filtros');
+      } else if (id === 'categorias') {
+        router.push('/categorias');
+      } else if (id === 'tema') {
+        router.push('/tema');
+      } else if (id === 'exportar') {
+        setExportOpen(true);
+      }
+    },
+    [close, router],
+  );
+
+  const closeExport = useCallback(() => {
+    setExportOpen(false);
+  }, []);
+
+  const handleExportWhatsApp = useCallback(() => {
+    closeExport();
+    void exportarPara('whatsapp');
+  }, [closeExport, exportarPara]);
+
+  const handleExportEmail = useCallback(() => {
+    closeExport();
+    void exportarPara('email');
+  }, [closeExport, exportarPara]);
+
+  const items = useMemo(
+    () =>
+      APP_MENU_ITEMS.map((item) => ({
+        ...item,
+        onPress: () => handleItemPress(item.id),
+      })),
+    [handleItemPress],
   );
 
   const toggle = useCallback(() => {
     setOpen((value) => !value);
-  }, []);
-
-  const close = useCallback(() => {
-    setOpen(false);
   }, []);
 
   return (
@@ -67,10 +90,65 @@ export function AppMenuHeader() {
                 <Pressable
                   key={item.id}
                   onPress={item.onPress}
-                  style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}>
-                  <ThemedText type="small">{item.label}</ThemedText>
+                  style={({ pressed }) => [
+                    styles.menuItem,
+                    pressed && { backgroundColor: theme.backgroundSelected },
+                  ]}>
+                  <SymbolView tintColor={theme.text} size={20} name={item.icon} />
+                  <ThemedText type="small" style={styles.menuItemLabel}>
+                    {item.label}
+                  </ThemedText>
                 </Pressable>
               ))}
+            </ThemedView>
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Modal visible={exportOpen} transparent animationType="fade" onRequestClose={closeExport}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={closeExport}
+          accessibilityLabel="Fechar exportação">
+          <View style={[styles.modalMenuAnchor, { paddingTop: insets.top + Spacing.two + 40 }]}>
+            <ThemedView type="backgroundElement" style={styles.dropdown}>
+              <ThemedText type="smallBold" style={styles.exportTitle}>
+                Exportar dados
+              </ThemedText>
+              <Pressable
+                disabled={exportando}
+                onPress={handleExportWhatsApp}
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  pressed && { backgroundColor: theme.backgroundSelected },
+                  exportando && styles.disabled,
+                ]}>
+                <SymbolView
+                  tintColor={theme.text}
+                  size={20}
+                  name={{ ios: 'message', android: 'chat', web: 'chat' }}
+                />
+                <ThemedText type="small" style={styles.menuItemLabel}>
+                  WhatsApp
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                disabled={exportando}
+                onPress={handleExportEmail}
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  pressed && { backgroundColor: theme.backgroundSelected },
+                  exportando && styles.disabled,
+                ]}>
+                <SymbolView
+                  tintColor={theme.text}
+                  size={20}
+                  name={{ ios: 'envelope', android: 'mail', web: 'mail' }}
+                />
+                <ThemedText type="small" style={styles.menuItemLabel}>
+                  E-mail
+                </ThemedText>
+              </Pressable>
             </ThemedView>
           </View>
         </Pressable>
@@ -101,16 +179,33 @@ const styles = StyleSheet.create({
     paddingRight: Spacing.three,
   },
   dropdown: {
-    minWidth: 160,
+    minWidth: 228,
     borderRadius: Spacing.two,
     paddingVertical: Spacing.one,
     elevation: 4,
+    overflow: 'hidden',
   },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+    paddingVertical: Spacing.two + 2,
+    borderRadius: Spacing.two,
+    marginHorizontal: Spacing.one,
+  },
+  menuItemLabel: {
+    flex: 1,
   },
   pressed: {
     opacity: 0.7,
+  },
+  exportTitle: {
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
+    paddingBottom: Spacing.one,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

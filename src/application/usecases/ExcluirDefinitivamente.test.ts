@@ -9,12 +9,14 @@ describe('ExcluirDefinitivamente', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'arquivada',
+      prioridade: 'baixa',
     };
     let excluido = false;
     const repo: TarefaRepository = {
       listar: async () => [tarefa],
       buscarPorId: async () => tarefa,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {
         excluido = true;
       },
@@ -30,12 +32,14 @@ describe('ExcluirDefinitivamente', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'pendente',
+      prioridade: 'baixa',
     };
     let excluido = false;
     const repo: TarefaRepository = {
       listar: async () => [tarefa],
       buscarPorId: async () => tarefa,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {
         excluido = true;
       },
@@ -50,6 +54,7 @@ describe('ExcluirDefinitivamente', () => {
       listar: async () => [],
       buscarPorId: async () => null,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 

@@ -6,22 +6,35 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { Categoria } from '@/domain/entities/Categoria';
 import type { ResumoTarefas } from '@/domain/entities/ResumoTarefas';
+import { PRIORIDADES_TAREFA, rotuloPrioridade } from '@/domain/entities/Tarefa';
 import { useTheme } from '@/hooks/use-theme';
+import { ESTILO_PRIORIDADE } from '@/presentation/constants/prioridadeTarefa';
 
 type Props = {
   resumo: ResumoTarefas;
   categorias: Categoria[];
 };
 
-function ResumoMetricCard({ valor, rotulo }: { valor: number; rotulo: string }) {
+function ResumoMetricCard({
+  valor,
+  rotulo,
+  dotColor,
+}: {
+  valor: number;
+  rotulo: string;
+  dotColor?: string;
+}) {
   return (
     <ThemedView type="backgroundElement" style={styles.metricCard}>
       <ThemedText type="title" style={styles.metricValue}>
         {valor}
       </ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.metricLabel}>
-        {rotulo}
-      </ThemedText>
+      <View style={styles.metricLabelRow}>
+        {dotColor ? <View style={[styles.metricDot, { backgroundColor: dotColor }]} /> : null}
+        <ThemedText type="small" themeColor="textSecondary" style={styles.metricLabel}>
+          {rotulo}
+        </ThemedText>
+      </View>
     </ThemedView>
   );
 }
@@ -92,6 +105,23 @@ export function ResumoTarefasCard({ resumo, categorias }: Props) {
         <ResumoMetricCard valor={resumo.porStatus.concluida} rotulo="Concluídas" />
       </View>
 
+      <ThemedText type="smallBold" style={styles.sectionTitle} accessibilityRole="header">
+        Prioridade (ativas)
+      </ThemedText>
+      <ThemedText type="small" themeColor="textSecondary" style={styles.sectionHint}>
+        Pendentes e concluídas; arquivadas não entram.
+      </ThemedText>
+      <View style={styles.metricRow}>
+        {PRIORIDADES_TAREFA.map((prioridade) => (
+          <ResumoMetricCard
+            key={prioridade}
+            valor={resumo.porPrioridade[prioridade]}
+            rotulo={rotuloPrioridade(prioridade)}
+            dotColor={ESTILO_PRIORIDADE[prioridade].dot}
+          />
+        ))}
+      </View>
+
       <ThemedText
         type="smallBold"
         style={styles.sectionTitle}
@@ -135,6 +165,16 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     textAlign: 'center',
+  },
+  metricLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+  },
+  metricDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   metricLabel: {
     textAlign: 'center',

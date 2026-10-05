@@ -7,6 +7,7 @@ function criarRepo(tarefa: Tarefa | null): TarefaRepository {
     listar: async () => (tarefa ? [tarefa] : []),
     buscarPorId: async () => tarefa,
     salvar: async () => {},
+    substituirTodas: async () => {},
     excluir: async () => {},
   };
 }
@@ -18,6 +19,7 @@ describe('ConcluirTarefa', () => {
       titulo: 'T',
       categoriaId: 'estudos',
       status: 'pendente',
+      prioridade: 'alta',
     };
     let salva: Tarefa | undefined;
     const repo: TarefaRepository = {
@@ -31,6 +33,7 @@ describe('ConcluirTarefa', () => {
 
     expect(resultado.status).toBe('concluida');
     expect(salva?.status).toBe('concluida');
+    expect(salva?.prioridade).toBe('alta');
   });
 
   it('rejeita se ja concluida', async () => {
@@ -39,6 +42,7 @@ describe('ConcluirTarefa', () => {
       titulo: 'T',
       categoriaId: 'estudos',
       status: 'concluida',
+      prioridade: 'baixa',
     };
     await expect(new ConcluirTarefa(criarRepo(tarefa)).executar('x')).rejects.toThrow(
       'pendentes',

@@ -5,22 +5,24 @@ import { EditarTarefa } from '@/application/usecases/EditarTarefa';
 import { ConcluirTarefa } from '@/application/usecases/ConcluirTarefa';
 import { CriarTarefa } from '@/application/usecases/CriarTarefa';
 import { ExcluirDefinitivamente } from '@/application/usecases/ExcluirDefinitivamente';
-import { ListarTarefas } from '@/application/usecases/ListarTarefas';
+import { ListarTarefasFiltradas } from '@/application/usecases/ListarTarefasFiltradas';
 import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
 import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import type { Categoria } from '@/domain/entities/Categoria';
-import type { Tarefa } from '@/domain/entities/Tarefa';
+import type { PrioridadeTarefa, Tarefa } from '@/domain/entities/Tarefa';
+import { useFiltrosTarefas } from '@/presentation/context/FiltrosTarefasContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
 export function useTarefaViewModel() {
   const { revision, notifyTarefasChanged } = useTarefaRefresh();
+  const { filtrosAplicados, carregando: carregandoFiltros } = useFiltrosTarefas();
   const { categoriaRepo, useCases } = useMemo(() => {
     const tarefaRepo = new TarefaRepositoryImpl();
     const categoriaRepo = new CategoriaRepositoryImpl();
     return {
       categoriaRepo,
       useCases: {
-        listar: new ListarTarefas(tarefaRepo),
+        listarFiltradas: new ListarTarefasFiltradas(tarefaRepo),
         criar: new CriarTarefa(tarefaRepo),
         concluir: new ConcluirTarefa(tarefaRepo),
         arquivar: new ArquivarTarefa(tarefaRepo),
@@ -48,7 +50,7 @@ export function useTarefaViewModel() {
     setErro(null);
     try {
       const [lista, cats] = await Promise.all([
-        useCases.listar.executar(),
+        useCases.listarFiltradas.executar(filtrosAplicados),
         categoriaRepo.listar(),
       ]);
       setTarefas(lista);
@@ -58,18 +60,14 @@ export function useTarefaViewModel() {
     } finally {
       setCarregando(false);
     }
-  }, [categoriaRepo, useCases.listar]);
+  }, [categoriaRepo, filtrosAplicados, useCases.listarFiltradas]);
 
   useEffect(() => {
-    void carregar();
-  }, [carregar]);
-
-  useEffect(() => {
-    if (revision === 0) {
+    if (carregandoFiltros) {
       return;
     }
     void carregar();
-  }, [revision, carregar]);
+  }, [carregar, carregandoFiltros, revision, filtrosAplicados]);
 
   const sincronizarListas = useCallback(async () => {
     await carregar();
@@ -77,13 +75,14 @@ export function useTarefaViewModel() {
   }, [carregar, notifyTarefasChanged]);
 
   const criar = useCallback(
-    async (titulo: string, prazo: string, categoriaId: string) => {
+    async (titulo: string, prazo: string, categoriaId: string, prioridade: PrioridadeTarefa) => {
       setErro(null);
       try {
         await useCases.criar.executar({
           titulo,
           categoriaId,
           prazo: prazo.trim() || undefined,
+          prioridade,
         });
         await sincronizarListas();
       } catch (e) {
@@ -133,10 +132,16 @@ export function useTarefaViewModel() {
   );
 
   const editar = useCallback(
-    async (id: string, titulo: string, prazo: string, categoriaId: string) => {
+    async (
+      id: string,
+      titulo: string,
+      prazo: string,
+      categoriaId: string,
+      prioridade: PrioridadeTarefa,
+    ) => {
       setErro(null);
       try {
-        await useCases.editar.executar({ id, titulo, categoriaId, prazo });
+        await useCases.editar.executar({ id, titulo, categoriaId, prazo, prioridade });
         await sincronizarListas();
         return true;
       } catch (e) {

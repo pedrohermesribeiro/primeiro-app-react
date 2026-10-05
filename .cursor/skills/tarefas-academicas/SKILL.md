@@ -2,8 +2,8 @@
 name: tarefas-academicas
 description: >-
   TODO LIST V1 (Expo Web): Clean Architecture + MVVM, Tarefa, Categoria (até 12),
-  onze casos de uso (criar, listar, concluir, arquivar, excluir, listar arquivadas,
-  restaurar, alterar prazo, editar, gerar resumo, incluir categoria), localStorage, testes Jest
+  quatorze casos de uso (criar, listar, listar filtradas, concluir, arquivar, excluir, listar arquivadas,
+  restaurar, alterar prazo, editar, gerar resumo, incluir categoria, excluir categoria, exportar dados), localStorage, testes Jest
   em domain e use cases. Use ao editar este app,
   entidades, repositórios, ViewModels, rotas Expo Router ou pastas em src/.
 ---
@@ -21,17 +21,20 @@ Persistência nativa: `@react-native-async-storage/async-storage` via `AsyncStor
 | Item | V1 |
 |------|-----|
 | Entidade principal | `Tarefa` (+ `Categoria` seed) |
-| Categorias | 6 seed + incluir até **12** (`IncluirCategoria`) |
+| Categorias | 6 seed + incluir até **12**; excluir até mín. **4** (`IncluirCategoria` / `ExcluirCategoria`) |
 | Ciclo de vida | `pendente` → `concluida` → `arquivada` |
-| Use cases | 11 arquivos em `application/usecases/` (ver [usecases.md](usecases.md)) |
+| Use cases | 14 arquivos em `application/usecases/` (ver [usecases.md](usecases.md)) |
+| Menu ☰ | Filtros, categorias, tema (grafite claro/escuro), exportar (WhatsApp / e-mail), Sobre (futuro) |
 | Testes | Domain + Use Cases ([testing.md](testing.md)) |
 
 ## Árvore
 
 ```text
 src/
-  app/                    # Stack + (tabs) + categorias (menu hambúrguer)
-  domain/entities/        # Tarefa, Categoria, ResumoTarefas
+  app/                    # Stack + (tabs) + categorias, filtros, tema (menu ☰)
+  domain/entities/        # Tarefa, Categoria, ResumoTarefas, FiltrosTarefa
+  domain/exportacao/      # pacote exportação (texto + HTML)
+  domain/theme/           # PreferenciaTema, resolverPaleta
   domain/repositories/
   application/usecases/   # PascalCase, um arquivo por caso de uso
   data/datasources/ + data/repositories/
@@ -55,15 +58,18 @@ viewmodels → data (composition root: Impl + use cases)
 
 1. `CriarTarefa.ts`
 2. `ListarTarefas.ts` — ativas (não arquivadas)
-3. `ConcluirTarefa.ts`
-4. `ArquivarTarefa.ts`
-5. `ExcluirDefinitivamente.ts`
-6. `ListarTarefasArquivadas.ts`
-7. `RestaurarTarefa.ts`
-8. `AlterarPrazoTarefa.ts`
-9. `EditarTarefa.ts`
-10. `GerarResumo.ts`
-11. `IncluirCategoria.ts`
+3. `ListarTarefasFiltradas.ts` — Home com `FiltrosTarefa`
+4. `ConcluirTarefa.ts`
+5. `ArquivarTarefa.ts`
+6. `ExcluirDefinitivamente.ts`
+7. `ListarTarefasArquivadas.ts`
+8. `RestaurarTarefa.ts`
+9. `AlterarPrazoTarefa.ts`
+10. `EditarTarefa.ts`
+11. `GerarResumo.ts`
+12. `IncluirCategoria.ts`
+13. `ExcluirCategoria.ts`
+14. `ExportarDados.ts`
 
 ## Novo use case
 
@@ -79,6 +85,6 @@ viewmodels → data (composition root: Impl + use cases)
 
 - [domain.md](domain.md) — linguagem ubíqua
 - [architecture.md](architecture.md) — camadas, rotas, localStorage
-- [usecases.md](usecases.md) — contratos dos 11 use cases
+- [usecases.md](usecases.md) — contratos dos casos de uso V1
 - [testing.md](testing.md) — Jest domain/application
 - [examples.md](examples.md) — esqueletos

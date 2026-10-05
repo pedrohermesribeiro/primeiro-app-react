@@ -7,6 +7,10 @@ export type Categoria = {
 
 export const MAX_CATEGORIAS = 12;
 
+export const MIN_CATEGORIAS = 4;
+
+export const CATEGORIA_REALOCACAO_PADRAO = 'outros';
+
 export const CATEGORIAS_PADRAO: Categoria[] = [
   { id: 'estudos', nome: 'Estudos' },
   { id: 'trabalho', nome: 'Trabalho' },
@@ -18,6 +22,10 @@ export const CATEGORIAS_PADRAO: Categoria[] = [
 
 export function podeIncluirCategoria(quantidade: number): boolean {
   return quantidade < MAX_CATEGORIAS;
+}
+
+export function podeExcluirCategoria(quantidade: number): boolean {
+  return quantidade > MIN_CATEGORIAS;
 }
 
 function slugBase(nome: string): string {

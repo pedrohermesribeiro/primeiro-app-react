@@ -2,7 +2,9 @@ import {
   aplicarPrazoEntrada,
   podeEditarTarefa,
   validarCategoriaId,
+  validarPrioridade,
   validarTituloTarefa,
+  type PrioridadeTarefa,
   type Tarefa,
 } from '@/domain/entities/Tarefa';
 import type { TarefaRepository } from '@/domain/repositories/TarefaRepository';
@@ -12,6 +14,7 @@ export type EditarTarefaEntrada = {
   titulo: string;
   categoriaId: string;
   prazo: string;
+  prioridade: PrioridadeTarefa | string;
 };
 
 export class EditarTarefa {
@@ -30,6 +33,7 @@ export class EditarTarefa {
       ...tarefa,
       titulo: validarTituloTarefa(entrada.titulo),
       categoriaId: validarCategoriaId(entrada.categoriaId),
+      prioridade: validarPrioridade(String(entrada.prioridade)),
     };
 
     const atualizada = aplicarPrazoEntrada(comDados, entrada.prazo);

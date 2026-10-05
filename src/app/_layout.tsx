@@ -1,35 +1,64 @@
 import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { paletaUsaChromeClaro } from '@/domain/theme/PreferenciaTema';
+import { useAppColorScheme } from '@/hooks/use-app-color-scheme';
+import { FiltrosTarefasProvider } from '@/presentation/context/FiltrosTarefasContext';
 import { TarefaRefreshProvider } from '@/presentation/context/TarefaRefreshContext';
+import { TemaAppProvider } from '@/presentation/context/TemaAppContext';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function RootLayoutNav() {
+  const paleta = useAppColorScheme();
+  const navigationTheme = paletaUsaChromeClaro(paleta) ? DefaultTheme : DarkTheme;
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <View style={styles.root}>
-          <AnimatedSplashOverlay />
+    <ThemeProvider value={navigationTheme}>
+      <View style={styles.root}>
+        <AnimatedSplashOverlay />
+        <FiltrosTarefasProvider>
           <TarefaRefreshProvider>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="categorias"
                 options={{
-                  title: 'Categorias',
+                  title: 'Gerenciar categorias',
+                  presentation: 'card',
+                }}
+              />
+              <Stack.Screen
+                name="filtros"
+                options={{
+                  title: 'Filtros',
+                  presentation: 'card',
+                }}
+              />
+              <Stack.Screen
+                name="tema"
+                options={{
+                  title: 'Tema',
                   presentation: 'card',
                 }}
               />
             </Stack>
           </TarefaRefreshProvider>
-        </View>
-      </ThemeProvider>
+        </FiltrosTarefasProvider>
+      </View>
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <TemaAppProvider>
+        <RootLayoutNav />
+      </TemaAppProvider>
     </SafeAreaProvider>
   );
 }

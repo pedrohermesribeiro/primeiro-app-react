@@ -11,6 +11,7 @@ import {
   podeRestaurar,
   type Tarefa,
 } from '@/domain/entities/Tarefa';
+import { PrioridadeBadge } from '@/presentation/components/PrioridadeBadge';
 
 type Props = {
   tarefa: Tarefa;
@@ -54,9 +55,12 @@ export function TarefaItem({
         <ThemedText type="smallBold" style={styles.titulo}>
           {tarefa.titulo}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {rotuloStatus[tarefa.status]}
-        </ThemedText>
+        <View style={styles.headerMeta}>
+          <PrioridadeBadge prioridade={tarefa.prioridade} />
+          <ThemedText type="small" themeColor="textSecondary">
+            {rotuloStatus[tarefa.status]}
+          </ThemedText>
+        </View>
       </View>
       <ThemedText type="small" themeColor="textSecondary">
         Categoria: {categoriaNome}
@@ -107,12 +111,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    flexWrap: 'wrap',
     gap: Spacing.two,
   },
   titulo: {
     flex: 1,
+    minWidth: 120,
     fontSize: 17,
     lineHeight: 22,
+  },
+  headerMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
   },
   actions: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  Pressable,
   StyleSheet,
   View,
 } from 'react-native';
@@ -12,13 +13,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import type { Tarefa } from '@/domain/entities/Tarefa';
+import type { PrioridadeTarefa, Tarefa } from '@/domain/entities/Tarefa';
 
+import { FiltrosAtivosBar } from '@/presentation/components/FiltrosAtivosBar';
 import { ModalEditarTarefa } from '@/presentation/components/ModalEditarTarefa';
 import { NovaTarefaForm } from '@/presentation/components/NovaTarefaForm';
 import { TarefaItem } from '@/presentation/components/TarefaItem';
 import { confirmarExclusaoTarefa } from '@/presentation/utils/confirmarExclusaoTarefa';
+import { useFiltrosTarefas } from '@/presentation/context/FiltrosTarefasContext';
 import { useTarefaViewModel } from '@/presentation/viewmodels/TarefaViewModel';
+import { filtrosDiferentesDoPadrao } from '@/domain/entities/FiltrosTarefa';
 
 export function TarefaView() {
   const insets = useSafeAreaInsets();
@@ -35,7 +39,10 @@ export function TarefaView() {
     carregar,
     nomeCategoria,
   } = useTarefaViewModel();
+  const { filtrosAplicados, limparFiltros } = useFiltrosTarefas();
   const [editarId, setEditarId] = useState<string | null>(null);
+
+  const listaFiltrada = filtrosDiferentesDoPadrao(filtrosAplicados);
 
   const tarefaEditar = useMemo(
     () => tarefas.find((t) => t.id === editarId) ?? null,
@@ -56,8 +63,8 @@ export function TarefaView() {
   const paddingHorizontal = Platform.select({ web: Spacing.three, default: Spacing.four });
 
   const handleSubmit = useCallback(
-    async (titulo: string, prazo: string, categoriaId: string) => {
-      await criar(titulo, prazo, categoriaId);
+    async (titulo: string, prazo: string, categoriaId: string, prioridade: PrioridadeTarefa) => {
+      await criar(titulo, prazo, categoriaId, prioridade);
     },
     [criar],
   );
@@ -86,12 +93,12 @@ export function TarefaView() {
   );
 
   const handleConfirmarEditar = useCallback(
-    async (titulo: string, prazo: string, categoriaId: string) => {
+    async (titulo: string, prazo: string, categoriaId: string, prioridade: PrioridadeTarefa) => {
       if (!editarId) {
         return;
       }
       const id = editarId;
-      const ok = await editar(id, titulo, prazo, categoriaId);
+      const ok = await editar(id, titulo, prazo, categoriaId, prioridade);
       if (ok) {
         setEditarId(null);
       }
@@ -111,6 +118,7 @@ export function TarefaView() {
           onSubmit={handleSubmit}
           erro={editarId ? null : erro}
         />
+        <FiltrosAtivosBar />
       </View>
 
       <View style={styles.listArea}>
@@ -126,9 +134,20 @@ export function TarefaView() {
             data={tarefas}
             keyExtractor={(item) => item.id}
             ListEmptyComponent={
-              <ThemedText type="small" themeColor="textSecondary" style={styles.vazio}>
-                Nenhuma tarefa ativa.
-              </ThemedText>
+              listaFiltrada ? (
+                <View style={styles.vazioComFiltro}>
+                  <ThemedText type="small" themeColor="textSecondary" style={styles.vazio}>
+                    Nenhuma tarefa com estes filtros.
+                  </ThemedText>
+                  <Pressable onPress={() => void limparFiltros()}>
+                    <ThemedText type="linkPrimary">Limpar filtros</ThemedText>
+                  </Pressable>
+                </View>
+              ) : (
+                <ThemedText type="small" themeColor="textSecondary" style={styles.vazio}>
+                  Nenhuma tarefa ativa.
+                </ThemedText>
+              )
             }
             renderItem={renderItem}
             keyboardShouldPersistTaps="handled"
@@ -140,10 +159,13 @@ export function TarefaView() {
         categorias={categorias}
         tituloInicial={tarefaEditar?.titulo ?? ''}
         categoriaIdInicial={tarefaEditar?.categoriaId ?? 'estudos'}
+        prioridadeInicial={tarefaEditar?.prioridade ?? 'baixa'}
         prazoInicial={tarefaEditar?.prazo ?? ''}
         erro={editarId !== null ? erro : null}
         onCancel={handleFecharEditar}
-        onConfirm={(titulo, prazo, categoriaId) => void handleConfirmarEditar(titulo, prazo, categoriaId)}
+        onConfirm={(titulo, prazo, categoriaId, prioridade) =>
+          void handleConfirmarEditar(titulo, prazo, categoriaId, prioridade)
+        }
       />
     </ThemedView>
   );
@@ -180,6 +202,11 @@ const styles = StyleSheet.create({
   },
   vazio: {
     textAlign: 'center',
+    marginTop: Spacing.four,
+  },
+  vazioComFiltro: {
+    alignItems: 'center',
+    gap: Spacing.two,
     marginTop: Spacing.four,
   },
 });

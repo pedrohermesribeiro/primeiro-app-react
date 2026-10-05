@@ -1,6 +1,11 @@
 import { createDefaultStorage } from '@/data/datasources/createDefaultStorage';
 import type { StorageDataSource } from '@/data/datasources/StorageDataSource';
-import type { StatusTarefa, Tarefa } from '@/domain/entities/Tarefa';
+import {
+  normalizarPrioridade,
+  type PrioridadeTarefa,
+  type StatusTarefa,
+  type Tarefa,
+} from '@/domain/entities/Tarefa';
 
 const CHAVE = 'gta:tarefas';
 
@@ -13,7 +18,12 @@ type TarefaLegada = {
   disciplinaId?: string;
   descricao?: string;
   tipo?: string;
+  prioridade?: string;
 };
+
+function prioridadeLegadaValida(valor?: string): valor is PrioridadeTarefa {
+  return valor === 'baixa' || valor === 'media' || valor === 'alta';
+}
 
 function normalizarStatus(status?: string): StatusTarefa {
   if (status === 'concluida' || status === 'arquivada' || status === 'pendente') {
@@ -32,6 +42,7 @@ function migrarTarefa(item: TarefaLegada): Tarefa {
     titulo: item.titulo,
     categoriaId,
     status: normalizarStatus(item.status),
+    prioridade: normalizarPrioridade(item.prioridade),
   };
 
   if (item.prazo) {
@@ -50,7 +61,8 @@ function precisaPersistirMigracao(bruto: TarefaLegada[], migradas: Tarefa[]): bo
     return (
       item.categoriaId !== m.categoriaId ||
       normalizarStatus(item.status) !== m.status ||
-      item.disciplinaId !== undefined
+      item.disciplinaId !== undefined ||
+      !prioridadeLegadaValida(item.prioridade)
     );
   });
 }

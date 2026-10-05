@@ -9,6 +9,7 @@ describe('AlterarPrazoTarefa', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'pendente',
+      prioridade: 'baixa',
     };
     let salva: Tarefa | null = null;
     const repo: TarefaRepository = {
@@ -17,6 +18,7 @@ describe('AlterarPrazoTarefa', () => {
       salvar: async (t) => {
         salva = t;
       },
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 
@@ -36,11 +38,13 @@ describe('AlterarPrazoTarefa', () => {
       titulo: 'T',
       categoriaId: 'outros',
       status: 'arquivada',
+      prioridade: 'baixa',
     };
     const repo: TarefaRepository = {
       listar: async () => [tarefa],
       buscarPorId: async () => tarefa,
       salvar: async () => {},
+      substituirTodas: async () => {},
       excluir: async () => {},
     };
 
