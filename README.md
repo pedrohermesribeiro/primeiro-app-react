@@ -6,9 +6,10 @@ Aplicativo **Expo 57** (React Native + **Web**) com **Clean Architecture**, **MV
 
 - **Tarefas:** criar, editar, concluir, arquivar, restaurar, excluir; **prioridade** (baixa / média / alta)
 - **Abas:** Home (lista filtrada), Resumo, Arquivadas
-- **Menu ☰:** Filtros (prioridade, status, prazo), gerenciar categorias (4–12), tema (automático, claro, escuro, grafite claro/escuro), exportar dados (WhatsApp em texto / e-mail em HTML), Sobre (futuro)
+- **Menu ☰:** Filtros (prioridade, status, prazo), gerenciar categorias (4–12), tema (padrão **grafite escuro**; também automático, claro, escuro, grafite claro), exportar dados (WhatsApp em texto / e-mail em HTML), **Sobre** (`/sobre`)
 - **Home:** barra *Filtros ativos* + limpar filtros quando aplicável
-- **Categorias:** grade 4 colunas no seletor; exclusão com realocação para `outros`
+- **Categorias:** seletor 4 colunas (layout acessível com fonte grande no Android); exclusão com realocação para `outros`
+- **Lembretes de prazo** (opcional): Não (padrão), No horário, 1h antes, 1 dia antes — multi-seleção; notificações locais no dev build
 - **Testes Jest** (domínio e casos de uso)
 
 Documentação detalhada: [.cursor/skills/tarefas-academicas/](.cursor/skills/tarefas-academicas/) (`architecture.md`, `domain.md`, `usecases.md`).
@@ -17,9 +18,18 @@ Documentação detalhada: [.cursor/skills/tarefas-academicas/](.cursor/skills/ta
 
 ```bash
 npm install
-npm run web          # navegador
+npm run web          # navegador (notificações de prazo desligadas na web)
 npx expo start       # dev server (LAN / emulador)
 ```
+
+**Notificações no dispositivo:** no **Expo Go** o app abre normalmente, mas notificações ficam desligadas; para alarmes de prazo use **development build**. Exemplos:
+
+```bash
+npx expo run:android
+npx expo run:ios
+```
+
+Conceda permissão de notificação quando o app pedir; tarefas só-data legadas não disparam alarme até terem hora salva.
 
 ## Testes e tipos
 

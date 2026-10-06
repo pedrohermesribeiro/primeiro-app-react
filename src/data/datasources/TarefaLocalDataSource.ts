@@ -6,6 +6,7 @@ import {
   type StatusTarefa,
   type Tarefa,
 } from '@/domain/entities/Tarefa';
+import { normalizarLembretes } from '@/domain/lembrete/LembretesTarefa';
 
 const CHAVE = 'gta:tarefas';
 
@@ -19,6 +20,7 @@ type TarefaLegada = {
   descricao?: string;
   tipo?: string;
   prioridade?: string;
+  lembretes?: unknown;
 };
 
 function prioridadeLegadaValida(valor?: string): valor is PrioridadeTarefa {
@@ -47,6 +49,11 @@ function migrarTarefa(item: TarefaLegada): Tarefa {
 
   if (item.prazo) {
     tarefa.prazo = item.prazo;
+  }
+
+  const lembretes = normalizarLembretes(item.lembretes);
+  if (lembretes.length > 0) {
+    tarefa.lembretes = lembretes;
   }
 
   return tarefa;

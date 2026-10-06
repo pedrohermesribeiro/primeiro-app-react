@@ -27,9 +27,9 @@ describe('AlterarPrazoTarefa', () => {
       prazo: '2026-06-15',
     });
 
-    expect(result.prazo).toBe('2026-06-15');
+    expect(result.prazo).toBe('2026-06-15T08:00');
     expect(result.status).toBe('pendente');
-    expect(salva?.prazo).toBe('2026-06-15');
+    expect(salva?.prazo).toBe('2026-06-15T08:00');
   });
 
   it('rejeita tarefa arquivada', async () => {

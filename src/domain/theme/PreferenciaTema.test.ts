@@ -1,4 +1,5 @@
 import {
+  migrarPreferenciaTemaSalva,
   normalizarPreferenciaTema,
   preferenciaTemaPadrao,
   resolverPaleta,
@@ -6,10 +7,17 @@ import {
 
 describe('PreferenciaTema', () => {
   it('preferenciaTemaPadrao e normalizar invalido', () => {
-    expect(preferenciaTemaPadrao()).toBe('system');
-    expect(normalizarPreferenciaTema(null)).toBe('system');
-    expect(normalizarPreferenciaTema('invalido')).toBe('system');
+    expect(preferenciaTemaPadrao()).toBe('grafiteEscuro');
+    expect(normalizarPreferenciaTema(null)).toBe('grafiteEscuro');
+    expect(normalizarPreferenciaTema('invalido')).toBe('grafiteEscuro');
     expect(normalizarPreferenciaTema('grafiteClaro')).toBe('grafiteClaro');
+    expect(normalizarPreferenciaTema('system')).toBe('system');
+  });
+
+  it('migrarPreferenciaTemaSalva converte system salvo legado', () => {
+    expect(migrarPreferenciaTemaSalva('system')).toBe('grafiteEscuro');
+    expect(migrarPreferenciaTemaSalva('light')).toBe('light');
+    expect(migrarPreferenciaTemaSalva('grafiteEscuro')).toBe('grafiteEscuro');
   });
 
   it('resolverPaleta com preferencias fixas', () => {

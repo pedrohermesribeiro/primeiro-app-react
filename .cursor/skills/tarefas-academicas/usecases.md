@@ -4,7 +4,7 @@ Todos em `src/application/usecases/`, classe com `constructor(repository)` e `ex
 
 ## CriarTarefa
 
-- **Entrada:** `{ titulo, categoriaId, prazo?, prioridade? }` (`prioridade` omitida → `baixa`)
+- **Entrada:** `{ titulo, categoriaId, prazo?, prioridade?, lembretes? }` (`prioridade` omitida → `baixa`; `lembretes` omitido → `[]`)
 - **Saída:** `Tarefa` com `status: 'pendente'`
 - **Erros:** título vazio, categoriaId vazio
 
@@ -58,7 +58,7 @@ Todos em `src/application/usecases/`, classe com `constructor(repository)` e `ex
 
 ## EditarTarefa
 
-- **Entrada:** `{ id, titulo, categoriaId, prazo, prioridade }` (`prazo` vazio remove)
+- **Entrada:** `{ id, titulo, categoriaId, prazo, prioridade, lembretes? }` (`prazo` vazio remove; `lembretes` padrão `[]`)
 - **Saída:** `Tarefa` atualizada (status inalterado)
 - **Erros:** não encontrada; `podeEditarTarefa` falso; validações de título, categoria, prioridade e prazo
 
@@ -86,6 +86,13 @@ Todos em `src/application/usecases/`, classe com `constructor(repository)` e `ex
 - **Entrada:** —
 - **Saída:** `{ textoWhatsApp: string; htmlEmail: string }` (tarefas ativas + categorias)
 - **Nota:** orquestra repositórios; formatação em `domain/exportacao/`; UI dispara WhatsApp (`Linking`) ou share de `.html` (`expo-file-system` + `expo-sharing`)
+
+## SincronizarNotificacoesTarefas
+
+- **Entrada:** `agora?` (opcional, testes)
+- **Saída:** `void`
+- **Fluxo:** se permissão negada → return; `listar` tarefas; `listarAgendamentosNotificacao` por lembrete marcado; cancela ids `gta-tarefa-*` órfãos
+- **Nota:** disparado na abertura do app e após mutações (`TarefaRefreshContext` + debounce); **Web** no-op no adapter
 
 ## ViewModels
 

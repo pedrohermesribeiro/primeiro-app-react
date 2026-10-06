@@ -1,4 +1,5 @@
 import type { PrioridadeTarefa, StatusTarefa, Tarefa } from '@/domain/entities/Tarefa';
+import { instanteComparacaoAtraso, parteDataCalendario } from '@/domain/prazo/PrazoTarefa';
 
 export type TipoFiltroPrazo = 'atrasadas' | 'hoje' | 'esta_semana' | 'este_mes';
 
@@ -85,11 +86,6 @@ export function filtrosDiferentesDoPadrao(filtros: FiltrosTarefa): boolean {
   return !filtrosIguais(filtros, filtrosPadrao());
 }
 
-function parseIsoParaDataLocal(iso: string): Date {
-  const [anoStr, mesStr, diaStr] = iso.split('-');
-  return new Date(Number(anoStr), Number(mesStr) - 1, Number(diaStr));
-}
-
 function inicioDoDia(data: Date): Date {
   return new Date(data.getFullYear(), data.getMonth(), data.getDate());
 }
@@ -110,7 +106,11 @@ export function isTarefaAtrasada(tarefa: Tarefa, refDate: Date = new Date()): bo
   if (tarefa.status !== 'pendente' || !tarefa.prazo) {
     return false;
   }
-  return parseIsoParaDataLocal(tarefa.prazo) < inicioDoDia(refDate);
+  const limite = instanteComparacaoAtraso(tarefa.prazo);
+  if (!limite) {
+    return false;
+  }
+  return refDate.getTime() > limite.getTime();
 }
 
 export function prazoCaiEmFiltro(
@@ -121,7 +121,10 @@ export function prazoCaiEmFiltro(
   if (!tarefa.prazo) {
     return false;
   }
-  const prazo = parseIsoParaDataLocal(tarefa.prazo);
+  const prazo = parteDataCalendario(tarefa.prazo);
+  if (!prazo) {
+    return false;
+  }
   const ref = inicioDoDia(refDate);
 
   switch (tipo) {

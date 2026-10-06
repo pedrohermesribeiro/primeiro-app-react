@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { normalizarPrazoComHorario } from '@/domain/prazo/PrazoTarefa';
 import { useTheme } from '@/hooks/use-theme';
 
 import { CampoPrazo } from '@/presentation/components/CampoPrazo';
@@ -30,7 +31,7 @@ export function ModalEditarPrazo({
 
   useEffect(() => {
     if (visible) {
-      setPrazo(prazoInicial);
+      setPrazo(prazoInicial.trim() ? normalizarPrazoComHorario(prazoInicial) : '');
     }
   }, [visible, prazoInicial]);
 
@@ -43,7 +44,7 @@ export function ModalEditarPrazo({
             <ThemedText type="small" themeColor="textSecondary">
               Prazo
             </ThemedText>
-            <CampoPrazo value={prazo} onChange={setPrazo} />
+            <CampoPrazo value={prazo} onChange={setPrazo} exibirLembretes={false} />
             <View style={styles.actions}>
               <Pressable onPress={onCancel} style={styles.button}>
                 <ThemedText type="smallBold" themeColor="textSecondary">

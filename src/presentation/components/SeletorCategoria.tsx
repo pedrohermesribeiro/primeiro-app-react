@@ -6,8 +6,10 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { Categoria } from '@/domain/entities/Categoria';
 import { useTheme } from '@/hooks/use-theme';
+import { useChipGridMinWidth } from '@/presentation/hooks/useChipGridMinWidth';
+import { useFonteGrandeFormulario } from '@/presentation/hooks/useFonteGrandeFormulario';
 
-const COLUNAS_CATEGORIA = 4;
+const COLUNAS_PADRAO = 4;
 
 type Props = {
   categorias: Categoria[];
@@ -23,54 +25,84 @@ function chunkCategorias(lista: Categoria[], tamanho: number): Categoria[][] {
   return linhas;
 }
 
-export function SeletorCategoria({ categorias, selecionadaId, onSelecionar }: Props) {
+type ChipProps = {
+  categoria: Categoria;
+  selecionada: boolean;
+  multilinha: boolean;
+};
+
+function ChipCategoria({ categoria, selecionada, multilinha }: ChipProps) {
   const theme = useTheme();
 
+  return (
+    <ThemedView
+      type={selecionada ? 'backgroundSelected' : 'backgroundElement'}
+      style={[styles.chip, selecionada && { borderColor: theme.text, borderWidth: 1 }]}>
+      <ThemedText
+        type="small"
+        themeColor={selecionada ? 'text' : 'textSecondary'}
+        numberOfLines={multilinha ? undefined : 1}
+        ellipsizeMode={multilinha ? undefined : 'tail'}
+        style={styles.chipTexto}>
+        {categoria.nome}
+      </ThemedText>
+    </ThemedView>
+  );
+}
+
+export function SeletorCategoria({ categorias, selecionadaId, onSelecionar }: Props) {
+  const fonteGrande = useFonteGrandeFormulario();
+  const minWidthChip = useChipGridMinWidth(COLUNAS_PADRAO);
+
   const linhas = useMemo(
-    () => chunkCategorias(categorias, COLUNAS_CATEGORIA),
+    () => chunkCategorias(categorias, COLUNAS_PADRAO),
     [categorias],
   );
 
   return (
     <View style={styles.container}>
       <ThemedText type="smallBold">Categoria</ThemedText>
-      <View style={styles.grid}>
-        {linhas.map((linha, indiceLinha) => {
-          const placeholders = COLUNAS_CATEGORIA - linha.length;
-          return (
-            <View key={`linha-${indiceLinha}`} style={styles.linha}>
-              {linha.map((categoria) => {
-                const selecionada = categoria.id === selecionadaId;
-                return (
+      {fonteGrande ? (
+        <View style={styles.gridAcessivel}>
+          {categorias.map((categoria) => (
+            <Pressable
+              key={categoria.id}
+              onPress={() => onSelecionar(categoria.id)}
+              style={[styles.celulaAcessivel, { minWidth: minWidthChip }]}>
+              <ChipCategoria
+                categoria={categoria}
+                selecionada={categoria.id === selecionadaId}
+                multilinha
+              />
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        <View style={styles.gridPadrao}>
+          {linhas.map((linha, indiceLinha) => {
+            const placeholders = COLUNAS_PADRAO - linha.length;
+            return (
+              <View key={`linha-${indiceLinha}`} style={styles.linha}>
+                {linha.map((categoria) => (
                   <Pressable
                     key={categoria.id}
                     onPress={() => onSelecionar(categoria.id)}
-                    style={styles.celula}>
-                    <ThemedView
-                      type={selecionada ? 'backgroundSelected' : 'backgroundElement'}
-                      style={[
-                        styles.chip,
-                        selecionada && { borderColor: theme.text, borderWidth: 1 },
-                      ]}>
-                      <ThemedText
-                        type="small"
-                        themeColor={selecionada ? 'text' : 'textSecondary'}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={styles.chipTexto}>
-                        {categoria.nome}
-                      </ThemedText>
-                    </ThemedView>
+                    style={styles.celulaPadrao}>
+                    <ChipCategoria
+                      categoria={categoria}
+                      selecionada={categoria.id === selecionadaId}
+                      multilinha={false}
+                    />
                   </Pressable>
-                );
-              })}
-              {Array.from({ length: placeholders }, (_, i) => (
-                <View key={`spacer-${indiceLinha}-${i}`} style={styles.celula} />
-              ))}
-            </View>
-          );
-        })}
-      </View>
+                ))}
+                {Array.from({ length: placeholders }, (_, i) => (
+                  <View key={`spacer-${indiceLinha}-${i}`} style={styles.celulaPadrao} />
+                ))}
+              </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }
@@ -79,16 +111,26 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.two,
   },
-  grid: {
+  gridPadrao: {
     gap: Spacing.two,
   },
   linha: {
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  celula: {
+  celulaPadrao: {
     flex: 1,
     minWidth: 0,
+  },
+  gridAcessivel: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+  },
+  celulaAcessivel: {
+    flexGrow: 1,
+    flexBasis: `${100 / COLUNAS_PADRAO}%`,
+    maxWidth: `${100 / COLUNAS_PADRAO}%`,
   },
   chip: {
     alignItems: 'center',
@@ -99,5 +141,6 @@ const styles = StyleSheet.create({
   },
   chipTexto: {
     textAlign: 'center',
+    flexShrink: 1,
   },
 });

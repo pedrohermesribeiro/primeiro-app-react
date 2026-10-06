@@ -47,9 +47,10 @@ describe('regras de Tarefa V1', () => {
 
   it('validarPrazoOpcional e validarPrazoIso', () => {
     expect(validarPrazoOpcional('')).toBeUndefined();
-    expect(validarPrazoOpcional('  2026-03-01  ')).toBe('2026-03-01');
-    expect(() => validarPrazoIso('2026-02-30')).toThrow('inexistente');
-    expect(() => validarPrazoIso('03/01/2026')).toThrow('AAAA-MM-DD');
+    expect(validarPrazoOpcional('  2026-03-01  ')).toBe('2026-03-01T08:00');
+    expect(() => validarPrazoIso('2026-02-30')).toThrow('Prazo inválido');
+    expect(() => validarPrazoIso('03/01/2026')).toThrow('Prazo inválido');
+    expect(validarPrazoIso('2026-03-01T09:00')).toBe('2026-03-01T09:00');
   });
 
   it('pendente pode concluir, arquivar e excluir', () => {
@@ -83,7 +84,7 @@ describe('regras de Tarefa V1', () => {
 
   it('aplicarPrazoEntrada limpa ou define prazo', () => {
     const comPrazo = aplicarPrazoEntrada(base, '2026-03-01');
-    expect(comPrazo.prazo).toBe('2026-03-01');
+    expect(comPrazo.prazo).toBe('2026-03-01T08:00');
     const semPrazo = aplicarPrazoEntrada(comPrazo, '');
     expect(semPrazo.prazo).toBeUndefined();
   });

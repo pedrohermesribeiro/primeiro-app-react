@@ -84,3 +84,17 @@ export const BottomTabInset = Platform.select({
   web: WebTabBarHeight,
 }) ?? 0;
 export const MaxContentWidth = 800;
+
+/** Alinhado a `ThemedText` default / small — escala com `allowFontScaling` nos inputs. */
+export const FormTypography = {
+  input: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500' as const,
+  },
+  chip: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500' as const,
+  },
+} as const;

@@ -11,6 +11,7 @@ import {
   podeRestaurar,
   type Tarefa,
 } from '@/domain/entities/Tarefa';
+import { formatarPrazoExibicao } from '@/domain/prazo/PrazoTarefa';
 import { PrioridadeBadge } from '@/presentation/components/PrioridadeBadge';
 
 type Props = {
@@ -33,11 +34,7 @@ function formatarPrazo(iso?: string): string {
   if (!iso) {
     return '—';
   }
-  const [ano, mes, dia] = iso.split('-');
-  if (!ano || !mes || !dia) {
-    return iso;
-  }
-  return `${dia}/${mes}/${ano}`;
+  return formatarPrazoExibicao(iso);
 }
 
 export function TarefaItem({

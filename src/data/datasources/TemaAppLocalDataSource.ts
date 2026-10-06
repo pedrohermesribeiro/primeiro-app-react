@@ -1,6 +1,7 @@
 import { createDefaultStorage } from '@/data/datasources/createDefaultStorage';
 import type { StorageDataSource } from '@/data/datasources/StorageDataSource';
 import {
+  migrarPreferenciaTemaSalva,
   normalizarPreferenciaTema,
   preferenciaTemaPadrao,
   type PreferenciaTema,
@@ -22,7 +23,12 @@ export class TemaAppLocalDataSource {
     }
     try {
       const obj = JSON.parse(bruto) as Partial<TemaPersistido>;
-      return normalizarPreferenciaTema(obj.preferencia);
+      const normalizada = normalizarPreferenciaTema(obj.preferencia);
+      const efetiva = migrarPreferenciaTemaSalva(normalizada);
+      if (efetiva !== normalizada) {
+        await this.set(efetiva);
+      }
+      return efetiva;
     } catch {
       return preferenciaTemaPadrao();
     }

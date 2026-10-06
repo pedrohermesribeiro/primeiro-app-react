@@ -6,6 +6,10 @@ import { Spacing } from '@/constants/theme';
 import { PRIORIDADES_TAREFA, rotuloPrioridade, type PrioridadeTarefa } from '@/domain/entities/Tarefa';
 import { useTheme } from '@/hooks/use-theme';
 import { ESTILO_PRIORIDADE } from '@/presentation/constants/prioridadeTarefa';
+import { useChipGridMinWidth } from '@/presentation/hooks/useChipGridMinWidth';
+import { useFonteGrandeFormulario } from '@/presentation/hooks/useFonteGrandeFormulario';
+
+const MAX_COLUNAS_ACESSIVEL = 3;
 
 type Props = {
   selecionada: PrioridadeTarefa;
@@ -14,11 +18,13 @@ type Props = {
 
 export function SeletorPrioridade({ selecionada, onSelecionar }: Props) {
   const theme = useTheme();
+  const fonteGrande = useFonteGrandeFormulario();
+  const minWidthChip = useChipGridMinWidth(MAX_COLUNAS_ACESSIVEL);
 
   return (
     <View style={styles.container}>
       <ThemedText type="smallBold">Prioridade</ThemedText>
-      <View style={styles.chips}>
+      <View style={fonteGrande ? styles.chipsAcessivel : styles.chipsPadrao}>
         {PRIORIDADES_TAREFA.map((prioridade) => {
           const ativa = prioridade === selecionada;
           const estilo = ESTILO_PRIORIDADE[prioridade];
@@ -26,16 +32,24 @@ export function SeletorPrioridade({ selecionada, onSelecionar }: Props) {
             <Pressable
               key={prioridade}
               onPress={() => onSelecionar(prioridade)}
-              style={styles.chipPressable}>
+              style={
+                fonteGrande
+                  ? [styles.chipPressAcessivel, { minWidth: minWidthChip }]
+                  : styles.chipPressPadrao
+              }>
               <ThemedView
                 type={ativa ? 'backgroundSelected' : 'backgroundElement'}
                 style={[
                   styles.chip,
                   { backgroundColor: ativa ? theme.backgroundSelected : estilo.chipBackground },
                   ativa && { borderColor: theme.text, borderWidth: 1 },
+                  fonteGrande && styles.chipAcessivel,
                 ]}>
                 <View style={[styles.dot, { backgroundColor: estilo.dot }]} />
-                <ThemedText type="small" themeColor={ativa ? 'text' : 'textSecondary'}>
+                <ThemedText
+                  type="small"
+                  themeColor={ativa ? 'text' : 'textSecondary'}
+                  style={fonteGrande ? styles.chipLabelAcessivel : undefined}>
                   {rotuloPrioridade(prioridade)}
                 </ThemedText>
               </ThemedView>
@@ -51,12 +65,22 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.two,
   },
-  chips: {
+  chipsPadrao: {
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  chipPressable: {
+  chipsAcessivel: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+  },
+  chipPressPadrao: {
     flex: 1,
+  },
+  chipPressAcessivel: {
+    flexGrow: 1,
+    flexBasis: `${100 / MAX_COLUNAS_ACESSIVEL}%`,
+    maxWidth: `${100 / MAX_COLUNAS_ACESSIVEL}%`,
   },
   chip: {
     flexDirection: 'row',
@@ -66,6 +90,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
+  },
+  chipAcessivel: {
+    flexWrap: 'wrap',
+    minHeight: 44,
+  },
+  chipLabelAcessivel: {
+    textAlign: 'center',
+    flexShrink: 1,
   },
   dot: {
     width: 10,

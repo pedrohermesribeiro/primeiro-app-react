@@ -29,7 +29,7 @@ describe('RestaurarTarefa', () => {
     });
 
     expect(result.status).toBe('pendente');
-    expect(result.prazo).toBe('2026-12-31');
+    expect(result.prazo).toBe('2026-12-31T08:00');
     expect(salva?.status).toBe('pendente');
     expect(salva?.prioridade).toBe('media');
   });

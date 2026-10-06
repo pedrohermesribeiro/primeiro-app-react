@@ -7,6 +7,7 @@ import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { paletaUsaChromeClaro } from '@/domain/theme/PreferenciaTema';
 import { useAppColorScheme } from '@/hooks/use-app-color-scheme';
 import { FiltrosTarefasProvider } from '@/presentation/context/FiltrosTarefasContext';
+import { NotificacoesTarefasSync } from '@/presentation/components/NotificacoesTarefasSync';
 import { TarefaRefreshProvider } from '@/presentation/context/TarefaRefreshContext';
 import { TemaAppProvider } from '@/presentation/context/TemaAppContext';
 
@@ -22,6 +23,7 @@ function RootLayoutNav() {
         <AnimatedSplashOverlay />
         <FiltrosTarefasProvider>
           <TarefaRefreshProvider>
+            <NotificacoesTarefasSync />
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
@@ -42,6 +44,13 @@ function RootLayoutNav() {
                 name="tema"
                 options={{
                   title: 'Tema',
+                  presentation: 'card',
+                }}
+              />
+              <Stack.Screen
+                name="sobre"
+                options={{
+                  title: 'Sobre',
                   presentation: 'card',
                 }}
               />

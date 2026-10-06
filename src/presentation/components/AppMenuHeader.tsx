@@ -34,6 +34,8 @@ export function AppMenuHeader() {
         router.push('/tema');
       } else if (id === 'exportar') {
         setExportOpen(true);
+      } else if (id === 'sobre') {
+        router.push('/sobre');
       }
     },
     [close, router],

@@ -30,6 +30,9 @@ src/data/
   repositories/
     TarefaRepositoryImpl.ts
     CategoriaRepositoryImpl.ts
+  notificacoes/
+    ExpoNotificacaoTarefaAdapter.native.ts
+    ExpoNotificacaoTarefaAdapter.web.ts
 ```
 
 ## Rotas V1
@@ -43,7 +46,7 @@ src/data/
 | `/filtros` | `FiltrosView` | Rascunho + **Aplicar filtros**; **Limpar tudo** no header |
 | `/tema` | `TemaView` | Preferência de aparência (aplicação imediata) |
 
-Tabs: Home → Resumo → Arquivadas. Menu **AppMenuHeader** (canto superior direito): **Filtros** → `/filtros`, **Gerenciar categorias** → `/categorias`, **Tema** → `/tema`, **Exportar dados** → modal **WhatsApp** (texto) / **E-mail** (HTML, tarefas **ativas**); Sobre fecha o menu (futuro). **`TemaAppProvider`** + `gta:tema` (Automático / Claro / Escuro / Grafite claro / Grafite escuro); `useAppColorScheme` → tokens em `Colors`. Home usa `FiltrosTarefasProvider` + `ListarTarefasFiltradas`; se filtros ≠ padrão, **`FiltrosAtivosBar`** (entre form e lista) com **Limpar filtros**.
+Tabs: Home → Resumo → Arquivadas. Menu **AppMenuHeader** (canto superior direito): **Filtros** → `/filtros`, **Gerenciar categorias** → `/categorias`, **Tema** → `/tema`, **Exportar dados** → modal **WhatsApp** (texto) / **E-mail** (HTML, tarefas **ativas**); **Sobre** → `/sobre`. **`TemaAppProvider`** + `gta:tema` (padrão **Grafite escuro**; opções Automático / Claro / Escuro / Grafite claro / Grafite escuro); `useAppColorScheme` → tokens em `Colors`. Home usa `FiltrosTarefasProvider` + `ListarTarefasFiltradas`; se filtros ≠ padrão, **`FiltrosAtivosBar`** (entre form e lista) com **Limpar filtros**.
 
 ## Persistência v1 (Web)
 
@@ -58,11 +61,13 @@ Composition root: **ViewModels** (`useMemo`).
 
 Componentes de prioridade: `SeletorPrioridade` (form/modal), `PrioridadeBadge` (card); cores em `presentation/constants/prioridadeTarefa.ts`.
 
-`SeletorCategoria` (Nova tarefa / Editar): grade fixa de **4 colunas** por linha, chips com largura igual (`flex: 1`).
+`SeletorCategoria` (Nova tarefa / Editar): **padrão** — grade fixa **4 colunas** por linha (`flex: 1`, ellipsis em 1 linha). **Android + `PixelRatio.getFontScale() > 1`**: `flexWrap`, até 4/linha, nomes multilinha; Home com form no `ListHeaderComponent`; modal editar com `ScrollView` (`useFonteGrandeFormulario`).
 
 Sync entre abas Home / Arquivadas / Resumo: `useFocusEffect` nas views + [`TarefaRefreshContext`](primeiro-app-react/src/presentation/context/TarefaRefreshContext.tsx) (`notifyTarefasChanged` após mutações).
 
 Exportação (menu): use case `ExportarDados` → `domain/exportacao/DadosExportacao.ts` (texto WhatsApp + HTML e-mail; só tarefas **ativas**); `presentation/services/compartilharExportacao.ts` + `expo-sharing`.
+
+Notificações locais (iOS/Android): `domain/lembrete/LembretesTarefa.ts` + `NotificacaoTarefa.listarAgendamentosNotificacao` (ids `gta-tarefa-{id}-{tipo}`); adapter Expo; `SincronizarNotificacoesTarefas`. UI: ícone lembrete + `ModalLembretesPrazo` em `CampoPrazo`. **Web** / **Expo Go** (notif. off): ver README.
 
 ## v2+
 

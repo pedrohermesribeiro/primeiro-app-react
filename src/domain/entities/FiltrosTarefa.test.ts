@@ -56,6 +56,14 @@ describe('FiltrosTarefa', () => {
     expect(isTarefaAtrasada(tarefa({ id: '4' }), ref)).toBe(false);
   });
 
+  it('isTarefaAtrasada com hora compara instante exato', () => {
+    const refManha = new Date(2026, 2, 17, 10, 0, 0);
+    const refTarde = new Date(2026, 2, 17, 15, 0, 0);
+    const item = tarefa({ id: '5', prazo: '2026-03-17T14:30' });
+    expect(isTarefaAtrasada(item, refManha)).toBe(false);
+    expect(isTarefaAtrasada(item, refTarde)).toBe(true);
+  });
+
   it('prazoCaiEmFiltro hoje e exclui sem prazo quando filtro de data ativo', () => {
     expect(prazoCaiEmFiltro(tarefa({ id: '1', prazo: '2026-03-17' }), 'hoje', ref)).toBe(true);
     const lista = [

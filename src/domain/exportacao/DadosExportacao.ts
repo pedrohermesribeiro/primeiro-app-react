@@ -5,6 +5,7 @@ import {
   type StatusTarefa,
   type Tarefa,
 } from '@/domain/entities/Tarefa';
+import { formatarPrazoExibicao } from '@/domain/prazo/PrazoTarefa';
 
 export const VERSAO_EXPORTACAO = 1 as const;
 
@@ -64,11 +65,7 @@ function formatarPrazo(iso?: string): string {
   if (!iso) {
     return '—';
   }
-  const [ano, mes, dia] = iso.split('-');
-  if (!ano || !mes || !dia) {
-    return iso;
-  }
-  return `${dia}/${mes}/${ano}`;
+  return formatarPrazoExibicao(iso);
 }
 
 function formatarDataHoraExportacao(iso: string): string {

@@ -1,6 +1,8 @@
 import {
+  aplicarLembretesEntrada,
   aplicarPrazoEntrada,
   podeEditarTarefa,
+  type TipoLembretePrazo,
   validarCategoriaId,
   validarPrioridade,
   validarTituloTarefa,
@@ -15,6 +17,7 @@ export type EditarTarefaEntrada = {
   categoriaId: string;
   prazo: string;
   prioridade: PrioridadeTarefa | string;
+  lembretes?: TipoLembretePrazo[];
 };
 
 export class EditarTarefa {
@@ -36,7 +39,8 @@ export class EditarTarefa {
       prioridade: validarPrioridade(String(entrada.prioridade)),
     };
 
-    const atualizada = aplicarPrazoEntrada(comDados, entrada.prazo);
+    const comPrazo = aplicarPrazoEntrada(comDados, entrada.prazo);
+    const atualizada = aplicarLembretesEntrada(comPrazo, entrada.lembretes ?? []);
     await this.repository.salvar(atualizada);
     return atualizada;
   }

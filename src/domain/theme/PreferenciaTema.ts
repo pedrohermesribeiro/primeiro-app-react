@@ -18,7 +18,15 @@ const PREFERENCIAS_VALIDAS = new Set<PreferenciaTema>([
 ]);
 
 export function preferenciaTemaPadrao(): PreferenciaTema {
-  return 'system';
+  return 'grafiteEscuro';
+}
+
+/** Migração one-shot: antigo default `system` salvo → Grafite escuro. */
+export function migrarPreferenciaTemaSalva(preferencia: PreferenciaTema): PreferenciaTema {
+  if (preferencia === 'system') {
+    return 'grafiteEscuro';
+  }
+  return preferencia;
 }
 
 export function normalizarPreferenciaTema(valor: unknown): PreferenciaTema {

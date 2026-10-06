@@ -1,3 +1,12 @@
+import {
+  combinarDataHora,
+  extrairParteDataIso,
+  extrairParteHora,
+  formatarPrazoExibicao,
+  horaPadraoParaData,
+  parsePrazoLocal,
+} from '@/domain/prazo/PrazoTarefa';
+
 export function dateToIsoLocal(date: Date): string {
   const ano = date.getFullYear();
   const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -6,17 +15,47 @@ export function dateToIsoLocal(date: Date): string {
 }
 
 export function isoToDateLocal(iso: string): Date | undefined {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
-    return undefined;
-  }
-  const [ano, mes, dia] = iso.split('-').map(Number);
-  return new Date(ano, mes - 1, dia);
+  return parsePrazoLocal(iso)?.date;
 }
 
-export function formatarPrazoExibicao(iso: string): string {
-  const date = isoToDateLocal(iso);
-  if (!date) {
-    return iso;
+export { formatarPrazoExibicao };
+
+export function obterDataIsoDoValor(value: string): string {
+  if (!value.trim()) {
+    return '';
   }
-  return date.toLocaleDateString('pt-BR');
+  return extrairParteDataIso(value);
+}
+
+export function obterHoraDoValor(value: string, agora: Date = new Date()): string {
+  return extrairParteHora(value, agora) ?? horaPadraoParaData(obterDataIsoDoValor(value), agora);
+}
+
+export function aplicarDataAoValor(value: string, dataIso: string, agora: Date = new Date()): string {
+  if (!dataIso) {
+    return '';
+  }
+  const horaAtual = value.includes('T') ? extrairParteHora(value, agora) : undefined;
+  const hora = horaAtual ?? horaPadraoParaData(dataIso, agora);
+  return combinarDataHora(dataIso, hora);
+}
+
+export function aplicarHoraAoValor(value: string, hora: string): string {
+  const dataIso = obterDataIsoDoValor(value);
+  if (!dataIso) {
+    return '';
+  }
+  return combinarDataHora(dataIso, hora);
+}
+
+export function formatarHoraExibicao(value: string, agora: Date = new Date()): string {
+  return obterHoraDoValor(value, agora);
+}
+
+export function formatarDataExibicao(value: string): string {
+  const data = obterDataIsoDoValor(value);
+  if (!data) {
+    return 'Data opcional';
+  }
+  return formatarPrazoExibicao(data);
 }

@@ -4,9 +4,11 @@ import {
   validarCategoriaId,
   validarPrazoOpcional,
   validarPrioridade,
+  aplicarLembretesEntrada,
   validarTituloTarefa,
   type PrioridadeTarefa,
   type Tarefa,
+  type TipoLembretePrazo,
 } from '@/domain/entities/Tarefa';
 import type { TarefaRepository } from '@/domain/repositories/TarefaRepository';
 
@@ -15,6 +17,7 @@ export type CriarTarefaEntrada = {
   categoriaId: string;
   prazo?: string;
   prioridade?: PrioridadeTarefa | string;
+  lembretes?: TipoLembretePrazo[];
 };
 
 export class CriarTarefa {
@@ -41,7 +44,9 @@ export class CriarTarefa {
       tarefa.prazo = prazo;
     }
 
-    await this.repository.salvar(tarefa);
-    return tarefa;
+    const comLembretes = aplicarLembretesEntrada(tarefa, entrada.lembretes ?? []);
+
+    await this.repository.salvar(comLembretes);
+    return comLembretes;
   }
 }

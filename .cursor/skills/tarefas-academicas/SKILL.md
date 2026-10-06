@@ -24,7 +24,7 @@ Persistência nativa: `@react-native-async-storage/async-storage` via `AsyncStor
 | Categorias | 6 seed + incluir até **12**; excluir até mín. **4** (`IncluirCategoria` / `ExcluirCategoria`) |
 | Ciclo de vida | `pendente` → `concluida` → `arquivada` |
 | Use cases | 14 arquivos em `application/usecases/` (ver [usecases.md](usecases.md)) |
-| Menu ☰ | Filtros, categorias, tema (grafite claro/escuro), exportar (WhatsApp / e-mail), Sobre (futuro) |
+| Menu ☰ | Filtros, categorias, tema (grafite claro/escuro), exportar (WhatsApp / e-mail), Sobre (`/sobre`) |
 | Testes | Domain + Use Cases ([testing.md](testing.md)) |
 
 ## Árvore

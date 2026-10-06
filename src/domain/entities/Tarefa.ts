@@ -1,4 +1,16 @@
+import {
+  lembretesPermitidosParaPrazo,
+  normalizarLembretes,
+  type TipoLembretePrazo,
+} from '@/domain/lembrete/LembretesTarefa';
+import {
+  normalizarPrazoComHorario,
+  validarPrazoArmazenado,
+  validarPrazoOpcionalArmazenado,
+} from '@/domain/prazo/PrazoTarefa';
 import { normalizarTextoEntrada } from '@/domain/validacao/textoEntrada';
+
+export type { TipoLembretePrazo };
 
 export type StatusTarefa = 'pendente' | 'concluida' | 'arquivada';
 
@@ -17,6 +29,7 @@ export type Tarefa = {
   status: StatusTarefa;
   prioridade: PrioridadeTarefa;
   prazo?: string;
+  lembretes?: TipoLembretePrazo[];
 };
 
 export function normalizarPrioridade(valor?: string): PrioridadeTarefa {
@@ -100,20 +113,6 @@ export function podeEditarTarefa(tarefa: Tarefa): boolean {
   return isTarefaAtiva(tarefa);
 }
 
-const PRAZO_ISO = /^\d{4}-\d{2}-\d{2}$/;
-
-function isDataIsoValida(iso: string): boolean {
-  const [anoStr, mesStr, diaStr] = iso.split('-');
-  const ano = Number(anoStr);
-  const mes = Number(mesStr);
-  const dia = Number(diaStr);
-  if (!Number.isInteger(ano) || !Number.isInteger(mes) || !Number.isInteger(dia)) {
-    return false;
-  }
-  const data = new Date(ano, mes - 1, dia);
-  return data.getFullYear() === ano && data.getMonth() === mes - 1 && data.getDate() === dia;
-}
-
 export function validarTituloTarefa(titulo: string): string {
   const normalizado = normalizarTextoEntrada(titulo);
   if (!normalizado) {
@@ -136,35 +135,60 @@ export function validarCategoriaId(categoriaId: string): string {
   return id.toLowerCase();
 }
 
-/** Prazo vazio → `undefined`; caso contrário ISO `AAAA-MM-DD` com data real. */
+/** Prazo vazio → `undefined`; caso contrário `AAAA-MM-DD` ou `AAAA-MM-DDTHH:mm` (local). */
 export function validarPrazoOpcional(prazo?: string): string | undefined {
-  if (prazo === undefined || prazo === null) {
+  const base = validarPrazoOpcionalArmazenado(prazo);
+  if (!base) {
     return undefined;
   }
-  const trimmed = prazo.trim();
-  if (!trimmed) {
-    return undefined;
-  }
-  return validarPrazoIso(trimmed);
+  return normalizarPrazoComHorario(base);
 }
 
 export function validarPrazoIso(prazo: string): string {
-  const trimmed = prazo.trim();
-  if (!PRAZO_ISO.test(trimmed)) {
-    throw new Error('Prazo inválido. Use AAAA-MM-DD.');
+  return validarPrazoArmazenado(prazo.trim());
+}
+
+export function validarLembretesOpcional(
+  lembretes: unknown,
+  prazo?: string,
+): TipoLembretePrazo[] {
+  const normalizados = normalizarLembretes(lembretes);
+  if (normalizados.length === 0) {
+    return [];
   }
-  if (!isDataIsoValida(trimmed)) {
-    throw new Error('Prazo inválido. Data inexistente.');
+  if (!lembretesPermitidosParaPrazo(prazo)) {
+    throw new Error('Lembretes exigem prazo com horário definido.');
   }
-  return trimmed;
+  return normalizados;
+}
+
+export function aplicarLembretesEntrada(
+  tarefa: Tarefa,
+  lembretes: TipoLembretePrazo[],
+): Tarefa {
+  const validos = validarLembretesOpcional(lembretes, tarefa.prazo);
+  if (validos.length === 0) {
+    const { lembretes: _removido, ...semLembretes } = tarefa;
+    return semLembretes;
+  }
+  return { ...tarefa, lembretes: validos };
 }
 
 export function aplicarPrazoEntrada(tarefa: Tarefa, prazo: string): Tarefa {
   const trimmed = prazo.trim();
   if (!trimmed) {
-    const { prazo: _removido, ...semPrazo } = tarefa;
+    const { prazo: _removido, lembretes: _lembretes, ...semPrazo } = tarefa;
     return semPrazo;
   }
-  const iso = validarPrazoIso(trimmed);
-  return { ...tarefa, prazo: iso };
+  const iso = validarPrazoOpcional(trimmed);
+  if (!iso) {
+    const { prazo: _removido, lembretes: _lembretes, ...semPrazo } = tarefa;
+    return semPrazo;
+  }
+  const comPrazo = { ...tarefa, prazo: iso };
+  if (comPrazo.lembretes?.length && !lembretesPermitidosParaPrazo(iso)) {
+    const { lembretes: _l, ...semLembretes } = comPrazo;
+    return semLembretes;
+  }
+  return comPrazo;
 }

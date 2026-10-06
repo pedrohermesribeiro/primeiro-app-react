@@ -9,7 +9,7 @@ import { ListarTarefasFiltradas } from '@/application/usecases/ListarTarefasFilt
 import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
 import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import type { Categoria } from '@/domain/entities/Categoria';
-import type { PrioridadeTarefa, Tarefa } from '@/domain/entities/Tarefa';
+import type { PrioridadeTarefa, Tarefa, TipoLembretePrazo } from '@/domain/entities/Tarefa';
 import { useFiltrosTarefas } from '@/presentation/context/FiltrosTarefasContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
@@ -75,7 +75,13 @@ export function useTarefaViewModel() {
   }, [carregar, notifyTarefasChanged]);
 
   const criar = useCallback(
-    async (titulo: string, prazo: string, categoriaId: string, prioridade: PrioridadeTarefa) => {
+    async (
+      titulo: string,
+      prazo: string,
+      categoriaId: string,
+      prioridade: PrioridadeTarefa,
+      lembretes: TipoLembretePrazo[],
+    ) => {
       setErro(null);
       try {
         await useCases.criar.executar({
@@ -83,6 +89,7 @@ export function useTarefaViewModel() {
           categoriaId,
           prazo: prazo.trim() || undefined,
           prioridade,
+          lembretes,
         });
         await sincronizarListas();
       } catch (e) {
@@ -138,10 +145,11 @@ export function useTarefaViewModel() {
       prazo: string,
       categoriaId: string,
       prioridade: PrioridadeTarefa,
+      lembretes: TipoLembretePrazo[],
     ) => {
       setErro(null);
       try {
-        await useCases.editar.executar({ id, titulo, categoriaId, prazo, prioridade });
+        await useCases.editar.executar({ id, titulo, categoriaId, prazo, prioridade, lembretes });
         await sincronizarListas();
         return true;
       } catch (e) {
