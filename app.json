@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "SimpleTaskFlow",
-    "slug": "primeiro-app-react",
+    "slug": "simpletaskflow",
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "primeiroappreact",
+    "scheme": "simpletaskflow",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.pedrohermesribsteam.primeiroappreact",
+      "package": "com.pedrohermesribsteam.simpletaskflow",
       "permissions": [
         "android.permission.SCHEDULE_EXACT_ALARM"
       ]
