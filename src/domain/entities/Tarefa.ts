@@ -56,6 +56,7 @@ export function rotuloPrioridade(prioridade: PrioridadeTarefa): string {
   return rotulos[prioridade];
 }
 
+/** Fallback local quando `crypto.randomUUID` não existe (não é segredo nem token). */
 function randomUuidV4(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
     const random = Math.floor(Math.random() * 16);

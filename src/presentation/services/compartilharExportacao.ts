@@ -3,8 +3,8 @@ import * as Linking from 'expo-linking';
 import * as Sharing from 'expo-sharing';
 import { Alert, Platform } from 'react-native';
 
-const ASSUNTO_EMAIL = 'Tarefas ativas — GTA';
-const NOME_ARQUIVO_HTML = 'tarefas-ativas-gta.html';
+const ASSUNTO_EMAIL = 'Tarefas ativas — SimpleTaskFlow';
+const NOME_ARQUIVO_HTML = 'tarefas-ativas-simpletaskflow.html';
 
 export async function abrirWhatsAppComTexto(texto: string): Promise<void> {
   const encoded = encodeURIComponent(texto);
@@ -30,7 +30,8 @@ export async function abrirWhatsAppComTexto(texto: string): Promise<void> {
 
 export async function abrirEmailComHtml(html: string, resumoTexto: string): Promise<void> {
   try {
-    const dir = new Directory(Paths.cache, 'exportacao-gta');
+    // Cache: sobrescreve a cada exportação; sem cleanup imediato pós-share (risco em algumas plataformas).
+    const dir = new Directory(Paths.cache, 'exportacao-simpletaskflow');
     if (!dir.exists) {
       dir.create();
     }

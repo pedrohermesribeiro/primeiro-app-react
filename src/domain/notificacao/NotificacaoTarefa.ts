@@ -3,7 +3,6 @@ import {
   type PrioridadeTarefa,
   type StatusTarefa,
   type Tarefa,
-  MAX_TITULO_TAREFA,
 } from '@/domain/entities/Tarefa';
 import {
   calcularInstanteLembrete,
@@ -52,13 +51,8 @@ export function idNotificacaoAgendada(tarefaId: string, tipo: TipoLembretePrazo)
   return `${PREFIXO_ID_NOTIFICACAO_TAREFA}${tarefaId}-${tipo}`;
 }
 
-function truncarTitulo(titulo: string): string {
-  const trimmed = titulo.trim();
-  if (trimmed.length <= MAX_TITULO_TAREFA) {
-    return trimmed;
-  }
-  return `${trimmed.slice(0, MAX_TITULO_TAREFA - 1)}…`;
-}
+/** Título genérico na notificação (evita expor título da tarefa na tela bloqueada). */
+export const TITULO_NOTIFICACAO_LEMBRETE = 'Lembrete — SimpleTaskFlow';
 
 export function montarConteudoNotificacao(
   tarefa: Tarefa,
@@ -67,10 +61,10 @@ export function montarConteudoNotificacao(
 ): ConteudoNotificacaoTarefa {
   const prazo = tarefa.prazo ?? '';
   const detalhe = `Prioridade: ${rotuloPrioridade(tarefa.prioridade)} · ${ROTULO_STATUS[tarefa.status]} · ${formatarPrazoExibicao(prazo, 'pt-BR', agora)}`;
-  const body = `Lembrete (${rotuloLembrete(tipoLembrete)}): ${detalhe}`;
+  const body = `${rotuloLembrete(tipoLembrete)} · ${detalhe}`;
 
   return {
-    title: truncarTitulo(tarefa.titulo),
+    title: TITULO_NOTIFICACAO_LEMBRETE,
     body,
     data: {
       tarefaId: tarefa.id,

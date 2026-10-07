@@ -1,7 +1,7 @@
 {
   "name": "primeiro-app-react",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dependencies": {
     "@expo/ui": "~57.0.22",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -47,7 +47,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "quality": "npm run typecheck && npm test"
   },
   "private": true
 }

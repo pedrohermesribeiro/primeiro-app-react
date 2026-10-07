@@ -53,11 +53,12 @@ describe('NotificacaoTarefa', () => {
     expect(idNotificacaoAgendada('x', '1h_antes')).toBe('gta-tarefa-x-1h_antes');
   });
 
-  it('montarConteudoNotificacao inclui lembrete e prazo', () => {
+  it('montarConteudoNotificacao usa título discreto e detalhes no corpo', () => {
     const conteudo = montarConteudoNotificacao(tarefaBase(), '1h_antes', agora);
-    expect(conteudo.title).toBe('Entregar trabalho');
-    expect(conteudo.body).toContain('Lembrete (1h antes)');
+    expect(conteudo.title).toBe('Lembrete — SimpleTaskFlow');
+    expect(conteudo.body).toContain('1h antes');
     expect(conteudo.body).toContain('Alta');
+    expect(conteudo.title).not.toContain('Entregar trabalho');
     expect(conteudo.data.lembrete).toBe('1h_antes');
   });
 });

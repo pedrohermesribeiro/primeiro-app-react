@@ -6,21 +6,18 @@ import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
 const DEBOUNCE_MS = 300;
 
-/** iOS/Android: permissão na abertura + reconcile após mutações (debounce). Web: no-op. */
+/** iOS/Android: reconcile quando há permissão; sem solicitar permissão aqui. Web: no-op. */
 export function NotificacoesTarefasSync() {
   const { revision } = useTarefaRefresh();
-  const { sincronizarNotificacoes, notificacaoPort } = useAppContainer();
+  const { sincronizarNotificacoes } = useAppContainer();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
       return;
     }
-    void (async () => {
-      await notificacaoPort.solicitarPermissao();
-      await sincronizarNotificacoes.executar();
-    })();
-  }, [notificacaoPort, sincronizarNotificacoes]);
+    void sincronizarNotificacoes.executar();
+  }, [sincronizarNotificacoes]);
 
   useEffect(() => {
     if (Platform.OS === 'web' || revision === 0) {

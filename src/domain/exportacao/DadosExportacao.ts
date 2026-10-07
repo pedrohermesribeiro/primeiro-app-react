@@ -119,7 +119,7 @@ export function gerarTextoAmigavelExportacao(
   const concluidas = tarefas.filter((t) => t.status === 'concluida');
 
   const linhas: string[] = [
-    '📋 Tarefas ativas — GTA',
+    '📋 Tarefas ativas — SimpleTaskFlow',
     `Exportado em: ${formatarDataHoraExportacao(pacote.exportadoEm)}`,
     '',
   ];
@@ -201,7 +201,7 @@ export function gerarHtmlExportacao(
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tarefas ativas — GTA</title>
+  <title>Tarefas ativas — SimpleTaskFlow</title>
 </head>
 <body style="margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#ffffff;color:#000;">
   <main style="max-width:800px;margin:0 auto;">
