@@ -1,4 +1,3 @@
-/* eslint-disable import/first -- mock hoisted antes do módulo sob teste */
 jest.mock('@/data/datasources/createDefaultStorage', () => ({
   createDefaultStorage: () => ({
     getItem: async () => null,
