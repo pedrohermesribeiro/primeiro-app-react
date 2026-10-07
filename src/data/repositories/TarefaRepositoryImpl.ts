@@ -1,3 +1,4 @@
+import { validarTarefasParaSubstituicao } from '@/data/persistencia/tarefaPersistida';
 import type { Tarefa } from '@/domain/entities/Tarefa';
 import type { TarefaRepository } from '@/domain/repositories/TarefaRepository';
 
@@ -27,7 +28,8 @@ export class TarefaRepositoryImpl implements TarefaRepository {
   }
 
   async substituirTodas(tarefas: Tarefa[]): Promise<void> {
-    await this.dataSource.setAll(tarefas);
+    const validadas = validarTarefasParaSubstituicao(tarefas);
+    await this.dataSource.setAll(validadas);
   }
 
   async excluir(id: string): Promise<void> {

@@ -1,3 +1,4 @@
+/* eslint-disable import/first -- mock hoisted antes do módulo sob teste */
 jest.mock('@/data/datasources/createDefaultStorage', () => ({
   createDefaultStorage: () => ({
     getItem: async () => null,
@@ -33,6 +34,15 @@ describe('TemaAppLocalDataSource', () => {
     const resultado = await new TemaAppLocalDataSource(storage).get();
     expect(resultado).toBe('grafiteEscuro');
     expect(setItem).toHaveBeenCalledWith('gta:tema', JSON.stringify({ preferencia: 'grafiteEscuro' }));
+  });
+
+  it('retorna padrao quando JSON corrompido', async () => {
+    const storage: StorageDataSource = {
+      getItem: async () => 'nao-json',
+      setItem: async () => {},
+      removeItem: async () => {},
+    };
+    await expect(new TemaAppLocalDataSource(storage).get()).resolves.toBe('grafiteEscuro');
   });
 
   it('mantem preferencia explicita light', async () => {

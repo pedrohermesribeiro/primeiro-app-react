@@ -1,5 +1,6 @@
 import { createDefaultStorage } from '@/data/datasources/createDefaultStorage';
 import type { StorageDataSource } from '@/data/datasources/StorageDataSource';
+import { parseJsonSeguro } from '@/data/persistencia/jsonSeguro';
 import { filtrosPadrao, normalizarFiltrosTarefa, type FiltrosTarefa } from '@/domain/entities/FiltrosTarefa';
 
 const CHAVE = 'gta:filtros';
@@ -12,11 +13,11 @@ export class FiltrosTarefasLocalDataSource {
     if (!bruto) {
       return filtrosPadrao();
     }
-    try {
-      return normalizarFiltrosTarefa(JSON.parse(bruto));
-    } catch {
+    const parsed = parseJsonSeguro(bruto);
+    if (parsed === undefined) {
       return filtrosPadrao();
     }
+    return normalizarFiltrosTarefa(parsed);
   }
 
   async set(filtros: FiltrosTarefa): Promise<void> {

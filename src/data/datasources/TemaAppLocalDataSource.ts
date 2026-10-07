@@ -1,5 +1,6 @@
 import { createDefaultStorage } from '@/data/datasources/createDefaultStorage';
 import type { StorageDataSource } from '@/data/datasources/StorageDataSource';
+import { isRegistro, parseJsonSeguro } from '@/data/persistencia/jsonSeguro';
 import {
   migrarPreferenciaTemaSalva,
   normalizarPreferenciaTema,
@@ -21,17 +22,16 @@ export class TemaAppLocalDataSource {
     if (!bruto) {
       return preferenciaTemaPadrao();
     }
-    try {
-      const obj = JSON.parse(bruto) as Partial<TemaPersistido>;
-      const normalizada = normalizarPreferenciaTema(obj.preferencia);
-      const efetiva = migrarPreferenciaTemaSalva(normalizada);
-      if (efetiva !== normalizada) {
-        await this.set(efetiva);
-      }
-      return efetiva;
-    } catch {
+    const parsed = parseJsonSeguro(bruto);
+    if (!isRegistro(parsed)) {
       return preferenciaTemaPadrao();
     }
+    const normalizada = normalizarPreferenciaTema(parsed.preferencia);
+    const efetiva = migrarPreferenciaTemaSalva(normalizada);
+    if (efetiva !== normalizada) {
+      await this.set(efetiva);
+    }
+    return efetiva;
   }
 
   async set(preferencia: PreferenciaTema): Promise<void> {

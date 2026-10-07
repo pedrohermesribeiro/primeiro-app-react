@@ -1,3 +1,4 @@
+import { validarCategoriasParaSubstituicao } from '@/data/persistencia/categoriaPersistida';
 import { CATEGORIAS_PADRAO, type Categoria } from '@/domain/entities/Categoria';
 import type { CategoriaRepository } from '@/domain/repositories/CategoriaRepository';
 
@@ -18,6 +19,7 @@ export class CategoriaRepositoryImpl implements CategoriaRepository {
   }
 
   async substituirTodas(categorias: Categoria[]): Promise<void> {
-    await this.dataSource.setAll(categorias);
+    const validadas = validarCategoriasParaSubstituicao(categorias);
+    await this.dataSource.setAll(validadas);
   }
 }
