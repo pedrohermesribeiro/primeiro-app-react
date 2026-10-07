@@ -18,16 +18,15 @@ import { useFonteGrandeFormulario } from '@/presentation/hooks/useFonteGrandeFor
 import { CampoPrazo } from '@/presentation/components/CampoPrazo';
 import { SeletorCategoria } from '@/presentation/components/SeletorCategoria';
 import { SeletorPrioridade } from '@/presentation/components/SeletorPrioridade';
+import {
+  botaoNovaTarefaDesabilitado,
+  processarEnvioNovaTarefa,
+  type SubmitNovaTarefa,
+} from '@/presentation/components/novaTarefaFormEnvio';
 
 type Props = {
   categorias: Categoria[];
-  onSubmit: (
-    titulo: string,
-    prazo: string,
-    categoriaId: string,
-    prioridade: PrioridadeTarefa,
-    lembretes: TipoLembretePrazo[],
-  ) => Promise<void>;
+  onSubmit: SubmitNovaTarefa;
   erro?: string | null;
 };
 
@@ -41,18 +40,29 @@ export function NovaTarefaForm({ categorias, onSubmit, erro }: Props) {
   const [lembretes, setLembretes] = useState<TipoLembretePrazo[]>(lembretesPadrao());
   const [enviando, setEnviando] = useState(false);
 
+  const limparCampos = useCallback(() => {
+    setTitulo('');
+    setPrazo('');
+    setPrioridade(PRIORIDADE_PADRAO);
+    setLembretes(lembretesPadrao());
+  }, []);
+
   const handleCriar = useCallback(async () => {
     setEnviando(true);
     try {
-      await onSubmit(titulo, prazo, categoriaId, prioridade, lembretes);
-      setTitulo('');
-      setPrazo('');
-      setPrioridade(PRIORIDADE_PADRAO);
-      setLembretes(lembretesPadrao());
+      await processarEnvioNovaTarefa(
+        onSubmit,
+        titulo,
+        prazo,
+        categoriaId,
+        prioridade,
+        lembretes,
+        limparCampos,
+      );
     } finally {
       setEnviando(false);
     }
-  }, [categoriaId, lembretes, onSubmit, prazo, prioridade, titulo]);
+  }, [categoriaId, lembretes, limparCampos, onSubmit, prazo, prioridade, titulo]);
 
   return (
     <>
@@ -92,7 +102,7 @@ export function NovaTarefaForm({ categorias, onSubmit, erro }: Props) {
         />
         <Pressable
           onPress={() => void handleCriar()}
-          disabled={enviando || !titulo.trim() || !categoriaId}
+          disabled={botaoNovaTarefaDesabilitado(enviando, titulo, categoriaId)}
           style={[styles.criarButton, { backgroundColor: theme.backgroundSelected }]}>
           <ThemedText type="smallBold">{enviando ? 'Salvando…' : 'Adicionar'}</ThemedText>
         </Pressable>

@@ -12,6 +12,8 @@ import type { Categoria } from '@/domain/entities/Categoria';
 import type { PrioridadeTarefa, Tarefa, TipoLembretePrazo } from '@/domain/entities/Tarefa';
 import { useFiltrosTarefas } from '@/presentation/context/FiltrosTarefasContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
+import { mensagemErroOperacao } from '@/presentation/viewmodels/mensagemErroOperacao';
+import { executarComFeedbackUsuario } from '@/presentation/viewmodels/operacaoComFeedback';
 
 export function useTarefaViewModel() {
   const { revision, notifyTarefasChanged } = useTarefaRefresh();
@@ -56,7 +58,7 @@ export function useTarefaViewModel() {
       setTarefas(lista);
       setCategorias(cats);
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao carregar tarefas.');
+      setErro(mensagemErroOperacao(e, 'Erro ao carregar tarefas.'));
     } finally {
       setCarregando(false);
     }
@@ -81,20 +83,22 @@ export function useTarefaViewModel() {
       categoriaId: string,
       prioridade: PrioridadeTarefa,
       lembretes: TipoLembretePrazo[],
-    ) => {
-      setErro(null);
-      try {
-        await useCases.criar.executar({
-          titulo,
-          categoriaId,
-          prazo: prazo.trim() || undefined,
-          prioridade,
-          lembretes,
-        });
-        await sincronizarListas();
-      } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao criar tarefa.');
-      }
+    ): Promise<boolean> => {
+      return executarComFeedbackUsuario(
+        () => setErro(null),
+        (mensagem) => setErro(mensagem),
+        'Erro ao criar tarefa.',
+        async () => {
+          await useCases.criar.executar({
+            titulo,
+            categoriaId,
+            prazo: prazo.trim() || undefined,
+            prioridade,
+            lembretes,
+          });
+          await sincronizarListas();
+        },
+      );
     },
     [useCases.criar, sincronizarListas],
   );
@@ -106,7 +110,7 @@ export function useTarefaViewModel() {
         await useCases.concluir.executar(id);
         await sincronizarListas();
       } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao concluir tarefa.');
+        setErro(mensagemErroOperacao(e, 'Erro ao concluir tarefa.'));
       }
     },
     [useCases.concluir, sincronizarListas],
@@ -119,7 +123,7 @@ export function useTarefaViewModel() {
         await useCases.arquivar.executar(id);
         await sincronizarListas();
       } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao arquivar tarefa.');
+        setErro(mensagemErroOperacao(e, 'Erro ao arquivar tarefa.'));
       }
     },
     [useCases.arquivar, sincronizarListas],
@@ -132,7 +136,7 @@ export function useTarefaViewModel() {
         await useCases.excluir.executar(id);
         await sincronizarListas();
       } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao excluir tarefa.');
+        setErro(mensagemErroOperacao(e, 'Erro ao excluir tarefa.'));
       }
     },
     [useCases.excluir, sincronizarListas],
@@ -147,15 +151,15 @@ export function useTarefaViewModel() {
       prioridade: PrioridadeTarefa,
       lembretes: TipoLembretePrazo[],
     ) => {
-      setErro(null);
-      try {
-        await useCases.editar.executar({ id, titulo, categoriaId, prazo, prioridade, lembretes });
-        await sincronizarListas();
-        return true;
-      } catch (e) {
-        setErro(e instanceof Error ? e.message : 'Erro ao editar tarefa.');
-        return false;
-      }
+      return executarComFeedbackUsuario(
+        () => setErro(null),
+        (mensagem) => setErro(mensagem),
+        'Erro ao editar tarefa.',
+        async () => {
+          await useCases.editar.executar({ id, titulo, categoriaId, prazo, prioridade, lembretes });
+          await sincronizarListas();
+        },
+      );
     },
     [useCases.editar, sincronizarListas],
   );

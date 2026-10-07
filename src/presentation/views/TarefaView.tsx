@@ -65,15 +65,13 @@ export function TarefaView() {
   const paddingHorizontal = Platform.select({ web: Spacing.three, default: Spacing.four });
 
   const handleSubmit = useCallback(
-    async (
+    (
       titulo: string,
       prazo: string,
       categoriaId: string,
       prioridade: PrioridadeTarefa,
       lembretes: TipoLembretePrazo[],
-    ) => {
-      await criar(titulo, prazo, categoriaId, prioridade, lembretes);
-    },
+    ) => criar(titulo, prazo, categoriaId, prioridade, lembretes),
     [criar],
   );
 

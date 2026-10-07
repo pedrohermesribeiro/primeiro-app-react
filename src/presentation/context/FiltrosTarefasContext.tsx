@@ -10,6 +10,7 @@ import {
 
 import { FiltrosTarefasLocalDataSource } from '@/data/datasources/FiltrosTarefasLocalDataSource';
 import { filtrosPadrao, type FiltrosTarefa } from '@/domain/entities/FiltrosTarefa';
+import { persistirPreferenciaUi } from '@/presentation/context/persistenciaPreferenciaUi';
 
 type FiltrosTarefasContextValue = {
   filtrosAplicados: FiltrosTarefa;
@@ -46,16 +47,22 @@ export function FiltrosTarefasProvider({ children }: { children: ReactNode }) {
 
   const aplicarFiltros = useCallback(
     async (filtros: FiltrosTarefa) => {
-      setFiltrosAplicados(filtros);
-      await dataSource.set(filtros);
+      await persistirPreferenciaUi(
+        (valor) => dataSource.set(valor),
+        setFiltrosAplicados,
+        filtros,
+      );
     },
     [dataSource],
   );
 
   const limparFiltros = useCallback(async () => {
     const padrao = filtrosPadrao();
-    setFiltrosAplicados(padrao);
-    await dataSource.set(padrao);
+    await persistirPreferenciaUi(
+      (valor) => dataSource.set(valor),
+      setFiltrosAplicados,
+      padrao,
+    );
   }, [dataSource]);
 
   const value = useMemo(

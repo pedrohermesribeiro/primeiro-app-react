@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { TemaAppLocalDataSource } from '@/data/datasources/TemaAppLocalDataSource';
+import { persistirPreferenciaUi } from '@/presentation/context/persistenciaPreferenciaUi';
 import {
   preferenciaTemaPadrao,
   type PreferenciaTema,
@@ -40,8 +41,11 @@ export function TemaAppProvider({ children }: { children: ReactNode }) {
 
   const setPreferencia = useCallback(
     async (nova: PreferenciaTema) => {
-      setPreferenciaState(nova);
-      await dataSource.set(nova);
+      await persistirPreferenciaUi(
+        (valor) => dataSource.set(valor),
+        setPreferenciaState,
+        nova,
+      );
     },
     [dataSource],
   );
