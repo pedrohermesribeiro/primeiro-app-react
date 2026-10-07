@@ -9,8 +9,15 @@ const DEBOUNCE_MS = 300;
 /** iOS/Android: reconcile quando há permissão; sem solicitar permissão aqui. Web: no-op. */
 export function NotificacoesTarefasSync() {
   const { revision } = useTarefaRefresh();
-  const { sincronizarNotificacoes } = useAppContainer();
+  const { sincronizarNotificacoes, notificacaoPort } = useAppContainer();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      return;
+    }
+    void notificacaoPort.prepararApresentacaoForeground();
+  }, [notificacaoPort]);
 
   useEffect(() => {
     if (Platform.OS === 'web') {

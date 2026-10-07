@@ -5,6 +5,8 @@ import type {
 
 /** Web: notificações locais de prazo não são suportadas (no-op). */
 export class ExpoNotificacaoTarefaAdapter implements NotificacaoTarefaPort {
+  async prepararApresentacaoForeground(): Promise<void> {}
+
   async permissoesConcedidas(): Promise<boolean> {
     return false;
   }

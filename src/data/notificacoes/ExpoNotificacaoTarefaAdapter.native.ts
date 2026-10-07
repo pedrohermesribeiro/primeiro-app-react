@@ -2,6 +2,7 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
 import { expoNotificacoesDisponivel } from '@/data/notificacoes/expoNotificacoesDisponivel';
+import { criarHandlerApresentacaoForeground } from '@/data/notificacoes/notificacaoForegroundApresentacao';
 import type {
   AgendarNotificacaoTarefaInput,
   NotificacaoTarefaPort,
@@ -23,6 +24,7 @@ async function carregarNotifications(): Promise<ExpoNotificationsModule | null> 
   if (!notificationsModule) {
     notificationsModule = await import('expo-notifications');
   }
+  await configurarHandlerForeground(notificationsModule);
   return notificationsModule;
 }
 
@@ -30,15 +32,7 @@ async function configurarHandlerForeground(Notifications: ExpoNotificationsModul
   if (handlerConfigurado) {
     return;
   }
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
-    }),
-  });
+  Notifications.setNotificationHandler(criarHandlerApresentacaoForeground());
   handlerConfigurado = true;
 }
 
@@ -65,6 +59,13 @@ function canalParaPrioridade(prioridade: AgendarNotificacaoTarefaInput['priorida
 }
 
 export class ExpoNotificacaoTarefaAdapter implements NotificacaoTarefaPort {
+  async prepararApresentacaoForeground(): Promise<void> {
+    if (!expoNotificacoesDisponivel()) {
+      return;
+    }
+    await carregarNotifications();
+  }
+
   async permissoesConcedidas(): Promise<boolean> {
     if (!expoNotificacoesDisponivel() || !Device.isDevice) {
       return false;
@@ -85,7 +86,6 @@ export class ExpoNotificacaoTarefaAdapter implements NotificacaoTarefaPort {
     if (!Notifications) {
       return false;
     }
-    await configurarHandlerForeground(Notifications);
     await garantirCanaisAndroid(Notifications);
     const atual = await Notifications.getPermissionsAsync();
     if (atual.status === 'granted') {

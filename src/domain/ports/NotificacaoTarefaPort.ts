@@ -11,6 +11,8 @@ export type AgendarNotificacaoTarefaInput = {
 };
 
 export interface NotificacaoTarefaPort {
+  /** Configura apresentação em foreground; não exibe diálogo de permissão. */
+  prepararApresentacaoForeground(): Promise<void>;
   /** Apenas consulta; não exibe diálogo de permissão. */
   permissoesConcedidas(): Promise<boolean>;
   solicitarPermissao(): Promise<boolean>;

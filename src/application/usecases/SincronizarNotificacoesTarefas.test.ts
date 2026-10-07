@@ -7,6 +7,7 @@ describe('SincronizarNotificacoesTarefas', () => {
 
   function criarPort(overrides: Partial<NotificacaoTarefaPort> = {}): NotificacaoTarefaPort {
     return {
+      prepararApresentacaoForeground: async () => {},
       permissoesConcedidas: async () => true,
       solicitarPermissao: async () => true,
       listarIdsComPrefixo: async () => ['gta-tarefa-antiga', 'gta-tarefa-futura-no_horario'],

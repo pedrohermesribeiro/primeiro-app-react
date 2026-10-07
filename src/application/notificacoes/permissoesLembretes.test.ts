@@ -8,6 +8,7 @@ describe('permissoesLembretes', () => {
   it('tarefa sem lembrete não provoca solicitação de permissão', async () => {
     const solicitarPermissao = jest.fn(async () => true);
     const port: NotificacaoTarefaPort = {
+      prepararApresentacaoForeground: async () => {},
       permissoesConcedidas: async () => false,
       solicitarPermissao,
       listarIdsComPrefixo: async () => [],
@@ -23,6 +24,7 @@ describe('permissoesLembretes', () => {
   it('permissão já concedida não chama solicitarPermissao', async () => {
     const solicitarPermissao = jest.fn();
     const port: NotificacaoTarefaPort = {
+      prepararApresentacaoForeground: async () => {},
       permissoesConcedidas: async () => true,
       solicitarPermissao,
       listarIdsComPrefixo: async () => [],
@@ -37,6 +39,7 @@ describe('permissoesLembretes', () => {
   it('solicitação contextual quando há lembretes e permissão ainda não concedida', async () => {
     const solicitarPermissao = jest.fn(async () => true);
     const port: NotificacaoTarefaPort = {
+      prepararApresentacaoForeground: async () => {},
       permissoesConcedidas: async () => false,
       solicitarPermissao,
       listarIdsComPrefixo: async () => [],
@@ -50,6 +53,7 @@ describe('permissoesLembretes', () => {
 
   it('permissão negada retorna false sem lançar', async () => {
     const port: NotificacaoTarefaPort = {
+      prepararApresentacaoForeground: async () => {},
       permissoesConcedidas: async () => false,
       solicitarPermissao: async () => false,
       listarIdsComPrefixo: async () => [],
