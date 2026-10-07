@@ -8,12 +8,13 @@ import {
   type ReactNode,
 } from 'react';
 
-import { TemaAppLocalDataSource } from '@/data/datasources/TemaAppLocalDataSource';
-import { persistirPreferenciaUi } from '@/presentation/context/persistenciaPreferenciaUi';
+import { useAppContainer } from '@/composition/AppContainerContext';
+import type { TemaAppGateway } from '@/composition/gateways';
 import {
   preferenciaTemaPadrao,
   type PreferenciaTema,
 } from '@/domain/theme/PreferenciaTema';
+import { persistirPreferenciaUi } from '@/presentation/context/persistenciaPreferenciaUi';
 
 type TemaAppContextValue = {
   preferencia: PreferenciaTema;
@@ -22,14 +23,20 @@ type TemaAppContextValue = {
 
 const TemaAppContext = createContext<TemaAppContextValue | null>(null);
 
-export function TemaAppProvider({ children }: { children: ReactNode }) {
-  const dataSource = useMemo(() => new TemaAppLocalDataSource(), []);
+type ProviderProps = {
+  children: ReactNode;
+  gateway?: TemaAppGateway;
+};
+
+export function TemaAppProvider({ children, gateway }: ProviderProps) {
+  const { temaAppGateway: gatewayPadrao } = useAppContainer();
+  const storage = gateway ?? gatewayPadrao;
   const [preferencia, setPreferenciaState] = useState<PreferenciaTema>(preferenciaTemaPadrao());
 
   useEffect(() => {
     let ativo = true;
     void (async () => {
-      const salva = await dataSource.get();
+      const salva = await storage.get();
       if (ativo) {
         setPreferenciaState(salva);
       }
@@ -37,17 +44,17 @@ export function TemaAppProvider({ children }: { children: ReactNode }) {
     return () => {
       ativo = false;
     };
-  }, [dataSource]);
+  }, [storage]);
 
   const setPreferencia = useCallback(
     async (nova: PreferenciaTema) => {
       await persistirPreferenciaUi(
-        (valor) => dataSource.set(valor),
+        (valor) => storage.set(valor),
         setPreferenciaState,
         nova,
       );
     },
-    [dataSource],
+    [storage],
   );
 
   const value = useMemo(

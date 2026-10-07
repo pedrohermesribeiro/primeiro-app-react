@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
-import { SincronizarNotificacoesTarefas } from '@/application/usecases/SincronizarNotificacoesTarefas';
-import { ExpoNotificacaoTarefaAdapter } from '@/data/notificacoes/ExpoNotificacaoTarefaAdapter';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
+import { useAppContainer } from '@/composition/AppContainerContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
 const DEBOUNCE_MS = 300;
@@ -11,27 +9,18 @@ const DEBOUNCE_MS = 300;
 /** iOS/Android: permissão na abertura + reconcile após mutações (debounce). Web: no-op. */
 export function NotificacoesTarefasSync() {
   const { revision } = useTarefaRefresh();
+  const { sincronizarNotificacoes, notificacaoPort } = useAppContainer();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const sincronizar = useMemo(
-    () =>
-      new SincronizarNotificacoesTarefas(
-        new TarefaRepositoryImpl(),
-        new ExpoNotificacaoTarefaAdapter(),
-      ),
-    [],
-  );
 
   useEffect(() => {
     if (Platform.OS === 'web') {
       return;
     }
     void (async () => {
-      const adapter = new ExpoNotificacaoTarefaAdapter();
-      await adapter.solicitarPermissao();
-      await sincronizar.executar();
+      await notificacaoPort.solicitarPermissao();
+      await sincronizarNotificacoes.executar();
     })();
-  }, [sincronizar]);
+  }, [notificacaoPort, sincronizarNotificacoes]);
 
   useEffect(() => {
     if (Platform.OS === 'web' || revision === 0) {
@@ -41,14 +30,14 @@ export function NotificacoesTarefasSync() {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      void sincronizar.executar();
+      void sincronizarNotificacoes.executar();
     }, DEBOUNCE_MS);
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [revision, sincronizar]);
+  }, [revision, sincronizarNotificacoes]);
 
   return null;
 }

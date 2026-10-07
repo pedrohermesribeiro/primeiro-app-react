@@ -8,7 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { FiltrosTarefasLocalDataSource } from '@/data/datasources/FiltrosTarefasLocalDataSource';
+import { useAppContainer } from '@/composition/AppContainerContext';
+import type { FiltrosTarefasGateway } from '@/composition/gateways';
 import { filtrosPadrao, type FiltrosTarefa } from '@/domain/entities/FiltrosTarefa';
 import { persistirPreferenciaUi } from '@/presentation/context/persistenciaPreferenciaUi';
 
@@ -21,8 +22,14 @@ type FiltrosTarefasContextValue = {
 
 const FiltrosTarefasContext = createContext<FiltrosTarefasContextValue | null>(null);
 
-export function FiltrosTarefasProvider({ children }: { children: ReactNode }) {
-  const dataSource = useMemo(() => new FiltrosTarefasLocalDataSource(), []);
+type ProviderProps = {
+  children: ReactNode;
+  gateway?: FiltrosTarefasGateway;
+};
+
+export function FiltrosTarefasProvider({ children, gateway }: ProviderProps) {
+  const { filtrosTarefasGateway: gatewayPadrao } = useAppContainer();
+  const storage = gateway ?? gatewayPadrao;
   const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosTarefa>(filtrosPadrao());
   const [carregando, setCarregando] = useState(true);
 
@@ -30,7 +37,7 @@ export function FiltrosTarefasProvider({ children }: { children: ReactNode }) {
     let ativo = true;
     void (async () => {
       try {
-        const salvos = await dataSource.get();
+        const salvos = await storage.get();
         if (ativo) {
           setFiltrosAplicados(salvos);
         }
@@ -43,27 +50,27 @@ export function FiltrosTarefasProvider({ children }: { children: ReactNode }) {
     return () => {
       ativo = false;
     };
-  }, [dataSource]);
+  }, [storage]);
 
   const aplicarFiltros = useCallback(
     async (filtros: FiltrosTarefa) => {
       await persistirPreferenciaUi(
-        (valor) => dataSource.set(valor),
+        (valor) => storage.set(valor),
         setFiltrosAplicados,
         filtros,
       );
     },
-    [dataSource],
+    [storage],
   );
 
   const limparFiltros = useCallback(async () => {
     const padrao = filtrosPadrao();
     await persistirPreferenciaUi(
-      (valor) => dataSource.set(valor),
+      (valor) => storage.set(valor),
       setFiltrosAplicados,
       padrao,
     );
-  }, [dataSource]);
+  }, [storage]);
 
   const value = useMemo(
     () => ({ filtrosAplicados, carregando, aplicarFiltros, limparFiltros }),

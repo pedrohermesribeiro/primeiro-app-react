@@ -1,9 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { ExcluirCategoria } from '@/application/usecases/ExcluirCategoria';
-import { IncluirCategoria } from '@/application/usecases/IncluirCategoria';
-import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import {
   MAX_CATEGORIAS,
   MIN_CATEGORIAS,
@@ -11,19 +7,12 @@ import {
   podeIncluirCategoria,
   type Categoria,
 } from '@/domain/entities/Categoria';
+import { useAppContainer } from '@/composition/AppContainerContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
 export function useCategoriasViewModel() {
   const { notifyTarefasChanged } = useTarefaRefresh();
-  const { repo, incluirCategoria, excluirCategoria } = useMemo(() => {
-    const repo = new CategoriaRepositoryImpl();
-    const tarefaRepo = new TarefaRepositoryImpl();
-    return {
-      repo,
-      incluirCategoria: new IncluirCategoria(repo),
-      excluirCategoria: new ExcluirCategoria(repo, tarefaRepo),
-    };
-  }, []);
+  const { categorias: useCases } = useAppContainer();
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -37,14 +26,14 @@ export function useCategoriasViewModel() {
     setCarregando(true);
     setErro(null);
     try {
-      const lista = await repo.listar();
+      const lista = await useCases.listarCategorias.executar();
       setCategorias(lista);
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao carregar categorias.');
     } finally {
       setCarregando(false);
     }
-  }, [repo]);
+  }, [useCases.listarCategorias]);
 
   useEffect(() => {
     void carregar();
@@ -55,7 +44,7 @@ export function useCategoriasViewModel() {
       setEnviando(true);
       setErro(null);
       try {
-        await incluirCategoria.executar({ nome });
+        await useCases.incluirCategoria.executar({ nome });
         await carregar();
         notifyTarefasChanged();
       } catch (e) {
@@ -65,7 +54,7 @@ export function useCategoriasViewModel() {
         setEnviando(false);
       }
     },
-    [carregar, incluirCategoria, notifyTarefasChanged],
+    [carregar, notifyTarefasChanged, useCases.incluirCategoria],
   );
 
   const excluir = useCallback(
@@ -73,7 +62,7 @@ export function useCategoriasViewModel() {
       setEnviando(true);
       setErro(null);
       try {
-        await excluirCategoria.executar(categoriaId);
+        await useCases.excluirCategoria.executar(categoriaId);
         await carregar();
         notifyTarefasChanged();
       } catch (e) {
@@ -83,7 +72,7 @@ export function useCategoriasViewModel() {
         setEnviando(false);
       }
     },
-    [carregar, excluirCategoria, notifyTarefasChanged],
+    [carregar, notifyTarefasChanged, useCases.excluirCategoria],
   );
 
   return {

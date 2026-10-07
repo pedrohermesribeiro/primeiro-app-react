@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { AppContainerProvider } from '@/composition/AppContainerContext';
 import { paletaUsaChromeClaro } from '@/domain/theme/PreferenciaTema';
 import { useAppColorScheme } from '@/hooks/use-app-color-scheme';
 import { FiltrosTarefasProvider } from '@/presentation/context/FiltrosTarefasContext';
@@ -65,9 +66,11 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <TemaAppProvider>
-        <RootLayoutNav />
-      </TemaAppProvider>
+      <AppContainerProvider>
+        <TemaAppProvider>
+          <RootLayoutNav />
+        </TemaAppProvider>
+      </AppContainerProvider>
     </SafeAreaProvider>
   );
 }

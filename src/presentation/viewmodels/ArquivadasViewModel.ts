@@ -1,28 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ExcluirDefinitivamente } from '@/application/usecases/ExcluirDefinitivamente';
-import { ListarTarefasArquivadas } from '@/application/usecases/ListarTarefasArquivadas';
-import { RestaurarTarefa } from '@/application/usecases/RestaurarTarefa';
-import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import type { Categoria } from '@/domain/entities/Categoria';
 import type { Tarefa } from '@/domain/entities/Tarefa';
+import { useAppContainer } from '@/composition/AppContainerContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 
 export function useArquivadasViewModel() {
   const { revision, notifyTarefasChanged } = useTarefaRefresh();
-  const { categoriaRepo, useCases } = useMemo(() => {
-    const tarefaRepo = new TarefaRepositoryImpl();
-    const categoriaRepo = new CategoriaRepositoryImpl();
-    return {
-      categoriaRepo,
-      useCases: {
-        listarArquivadas: new ListarTarefasArquivadas(tarefaRepo),
-        excluirDefinitivamente: new ExcluirDefinitivamente(tarefaRepo),
-        restaurar: new RestaurarTarefa(tarefaRepo),
-      },
-    };
-  }, []);
+  const { arquivadas: useCases } = useAppContainer();
 
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -43,7 +28,7 @@ export function useArquivadasViewModel() {
     try {
       const [lista, cats] = await Promise.all([
         useCases.listarArquivadas.executar(),
-        categoriaRepo.listar(),
+        useCases.listarCategorias.executar(),
       ]);
       setTarefas(lista);
       setCategorias(cats);
@@ -52,7 +37,7 @@ export function useArquivadasViewModel() {
     } finally {
       setCarregando(false);
     }
-  }, [categoriaRepo, useCases.listarArquivadas]);
+  }, [useCases.listarArquivadas, useCases.listarCategorias]);
 
   useEffect(() => {
     void carregar();

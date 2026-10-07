@@ -1,22 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { GerarResumo } from '@/application/usecases/GerarResumo';
-import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import type { Categoria } from '@/domain/entities/Categoria';
 import type { ResumoTarefas } from '@/domain/entities/ResumoTarefas';
+import { useAppContainer } from '@/composition/AppContainerContext';
 
 export function useResumoViewModel() {
-  const { categoriaRepo, useCases } = useMemo(() => {
-    const tarefaRepo = new TarefaRepositoryImpl();
-    const categoriaRepo = new CategoriaRepositoryImpl();
-    return {
-      categoriaRepo,
-      useCases: {
-        gerarResumo: new GerarResumo(tarefaRepo),
-      },
-    };
-  }, []);
+  const { resumo: useCases } = useAppContainer();
 
   const [resumo, setResumo] = useState<ResumoTarefas | null>(null);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -29,7 +18,7 @@ export function useResumoViewModel() {
     try {
       const [res, cats] = await Promise.all([
         useCases.gerarResumo.executar(),
-        categoriaRepo.listar(),
+        useCases.listarCategorias.executar(),
       ]);
       setResumo(res);
       setCategorias(cats);
@@ -38,7 +27,7 @@ export function useResumoViewModel() {
     } finally {
       setCarregando(false);
     }
-  }, [categoriaRepo, useCases.gerarResumo]);
+  }, [useCases.gerarResumo, useCases.listarCategorias]);
 
   return {
     resumo,

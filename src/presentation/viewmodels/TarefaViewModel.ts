@@ -1,15 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ArquivarTarefa } from '@/application/usecases/ArquivarTarefa';
-import { EditarTarefa } from '@/application/usecases/EditarTarefa';
-import { ConcluirTarefa } from '@/application/usecases/ConcluirTarefa';
-import { CriarTarefa } from '@/application/usecases/CriarTarefa';
-import { ExcluirDefinitivamente } from '@/application/usecases/ExcluirDefinitivamente';
-import { ListarTarefasFiltradas } from '@/application/usecases/ListarTarefasFiltradas';
-import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
 import type { Categoria } from '@/domain/entities/Categoria';
 import type { PrioridadeTarefa, Tarefa, TipoLembretePrazo } from '@/domain/entities/Tarefa';
+import { useAppContainer } from '@/composition/AppContainerContext';
 import { useFiltrosTarefas } from '@/presentation/context/FiltrosTarefasContext';
 import { useTarefaRefresh } from '@/presentation/context/TarefaRefreshContext';
 import { mensagemErroOperacao } from '@/presentation/viewmodels/mensagemErroOperacao';
@@ -18,21 +11,7 @@ import { executarComFeedbackUsuario } from '@/presentation/viewmodels/operacaoCo
 export function useTarefaViewModel() {
   const { revision, notifyTarefasChanged } = useTarefaRefresh();
   const { filtrosAplicados, carregando: carregandoFiltros } = useFiltrosTarefas();
-  const { categoriaRepo, useCases } = useMemo(() => {
-    const tarefaRepo = new TarefaRepositoryImpl();
-    const categoriaRepo = new CategoriaRepositoryImpl();
-    return {
-      categoriaRepo,
-      useCases: {
-        listarFiltradas: new ListarTarefasFiltradas(tarefaRepo),
-        criar: new CriarTarefa(tarefaRepo),
-        concluir: new ConcluirTarefa(tarefaRepo),
-        arquivar: new ArquivarTarefa(tarefaRepo),
-        excluir: new ExcluirDefinitivamente(tarefaRepo),
-        editar: new EditarTarefa(tarefaRepo),
-      },
-    };
-  }, []);
+  const { tarefaHome: useCases } = useAppContainer();
 
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -53,7 +32,7 @@ export function useTarefaViewModel() {
     try {
       const [lista, cats] = await Promise.all([
         useCases.listarFiltradas.executar(filtrosAplicados),
-        categoriaRepo.listar(),
+        useCases.listarCategorias.executar(),
       ]);
       setTarefas(lista);
       setCategorias(cats);
@@ -62,7 +41,7 @@ export function useTarefaViewModel() {
     } finally {
       setCarregando(false);
     }
-  }, [categoriaRepo, filtrosAplicados, useCases.listarFiltradas]);
+  }, [filtrosAplicados, useCases.listarCategorias, useCases.listarFiltradas]);
 
   useEffect(() => {
     if (carregandoFiltros) {

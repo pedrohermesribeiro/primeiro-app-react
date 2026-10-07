@@ -1,9 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
-import { ExportarDados } from '@/application/usecases/ExportarDados';
-import { CategoriaRepositoryImpl } from '@/data/repositories/CategoriaRepositoryImpl';
-import { TarefaRepositoryImpl } from '@/data/repositories/TarefaRepositoryImpl';
+import { useAppContainer } from '@/composition/AppContainerContext';
 import {
   abrirEmailComHtml,
   abrirWhatsAppComTexto,
@@ -12,10 +10,7 @@ import {
 export type DestinoExportacao = 'whatsapp' | 'email';
 
 export function useExportarDados() {
-  const exportarDados = useMemo(
-    () => new ExportarDados(new TarefaRepositoryImpl(), new CategoriaRepositoryImpl()),
-    [],
-  );
+  const { exportarDados } = useAppContainer();
   const [exportando, setExportando] = useState(false);
 
   const exportarPara = useCallback(
