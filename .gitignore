@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Backup da identidade visual anterior
+assets/backup-identidade-antiga/
